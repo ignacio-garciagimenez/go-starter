@@ -2,10 +2,12 @@ package product
 
 import (
 	"errors"
+	"github.com/bitlogic/go-startup/src/domain"
 	"github.com/google/uuid"
 )
 
 type Product struct {
+	domain.Entity
 	id    uuid.UUID
 	name  string
 	price float64
@@ -23,7 +25,7 @@ func NewProduct(name string, price float64) (*Product, error) {
 	}, nil
 }
 
-func (p Product) GetId() uuid.UUID {
+func (p Product) GetID() uuid.UUID {
 	return p.id
 }
 

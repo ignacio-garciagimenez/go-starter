@@ -84,3 +84,27 @@ func Test_GivenACartWithAnItem_WhenAddTheSameItemToCart_ThenUpdateQuantity(t *te
 	assert.NotEmpty(t, cartItem)
 	assert.Equal(t, 3, cart.Size())
 }
+
+func Test_GivenAnEmptyCart_WhenGetTotal_ThenReturnZero(t *testing.T) {
+	cartCustomer, _ := customer.NewCustomer("John Mayer")
+	cart, _ := cart.NewCart(cartCustomer)
+
+	price := cart.GetTotal()
+
+	assert.Equal(t, float64(0), price)
+}
+
+func Test_GivenANonEmptyCart_WhenGetTotal_ThenReturnCorrectTotal(t *testing.T) {
+	cartCustomer, _ := customer.NewCustomer("John Mayer")
+	productToAdd, _ := product.NewProduct("Arroz Blanco Gallo", 8.10)
+	anotherProductToAdd, _ := product.NewProduct("Pepsi 2.5Lt", 12.00)
+
+	cart, _ := cart.NewCart(cartCustomer)
+	cart.AddItem(productToAdd, 1)
+	cart.AddItem(productToAdd, 2)
+	cart.AddItem(anotherProductToAdd, 2)
+
+	total := cart.GetTotal()
+
+	assert.Equal(t, 48.30, total)
+}

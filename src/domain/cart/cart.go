@@ -2,12 +2,14 @@ package cart
 
 import (
 	"errors"
+	"github.com/bitlogic/go-startup/src/domain"
 	"github.com/bitlogic/go-startup/src/domain/customer"
 	"github.com/bitlogic/go-startup/src/domain/product"
 	"github.com/google/uuid"
 )
 
 type Cart struct {
+	domain.Entity
 	id         uuid.UUID
 	customerId uuid.UUID
 	items      map[uuid.UUID]item
@@ -20,7 +22,7 @@ func NewCart(customer *customer.Customer) (*Cart, error) {
 
 	return &Cart{
 		id:         uuid.New(),
-		customerId: customer.GetId(),
+		customerId: customer.GetID(),
 		items:      map[uuid.UUID]item{},
 	}, nil
 }
@@ -43,7 +45,7 @@ func (c *Cart) AddItem(product *product.Product, quantity int) (item, error) {
 		return item{}, errors.New("invalid quantity")
 	}
 
-	cartItem, err := c.findItem(product.GetId())
+	cartItem, err := c.findItem(product.GetID())
 	if err != nil {
 		return c.addNewItem(product, quantity), nil
 	}
@@ -63,7 +65,7 @@ func (c Cart) findItem(productId uuid.UUID) (item, error) {
 func (c *Cart) addNewItem(product *product.Product, quantity int) item {
 	item := newItem(product, quantity)
 
-	c.items[product.GetId()] = item
+	c.items[product.GetID()] = item
 	return item
 }
 
@@ -74,9 +76,26 @@ func (c *Cart) updateItemQuantity(cartItem item, quantityToAdd int) item {
 	return cartItem
 }
 
+func (c Cart) GetTotal() float64 {
+	var total float64
+	for _, item := range c.items {
+		total += item.getTotal()
+	}
+
+	return total
+}
+
+func (c Cart) GetID() uuid.UUID {
+	return c.id
+}
+
+func (c Cart) GetCustomerID() uuid.UUID {
+	return c.customerId
+}
+
 func newItem(product *product.Product, quantity int) item {
 	return item{
-		productId: product.GetId(),
+		productId: product.GetID(),
 		price:     product.GetPrice(),
 		quantity:  quantity,
 	}
