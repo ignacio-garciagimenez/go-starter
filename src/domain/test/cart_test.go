@@ -38,7 +38,7 @@ func Test_GivenANilProduct_WhenAddProductToCart_ThenReturnError(t *testing.T) {
 	cartCustomer, _ := customer.NewCustomer("John Mayer")
 	cart, _ := cart.NewCart(cartCustomer)
 
-	cartItem, err := cart.AddItem(nil)
+	cartItem, err := cart.AddItem(nil, 1)
 
 	assert.Error(t, err)
 	assert.Equal(t, "invalid product", err.Error())
@@ -51,9 +51,36 @@ func Test_GivenAValidProduct_WhenAddProductToCart_ThenReturnAnItem(t *testing.T)
 
 	productToAdd, _ := product.NewProduct("Arroz Blanco Gallo", 8.00)
 
-	cartItem, err := cart.AddItem(productToAdd)
+	cartItem, err := cart.AddItem(productToAdd, 1)
 
 	assert.Nil(t, err)
 	assert.NotEmpty(t, cartItem)
 	assert.Equal(t, 1, cart.Size())
+}
+
+func Test_GivenAnInvalidQuantity_WhenAddProductToCart_ThenReturnError(t *testing.T) {
+	cartCustomer, _ := customer.NewCustomer("John Mayer")
+	cart, _ := cart.NewCart(cartCustomer)
+
+	productToAdd, _ := product.NewProduct("Arroz Blanco Gallo", 8.00)
+
+	cartItem, err := cart.AddItem(productToAdd, 0)
+
+	assert.Error(t, err)
+	assert.Equal(t, "invalid quantity", err.Error())
+	assert.Empty(t, cartItem)
+	assert.Equal(t, 0, cart.Size())
+}
+
+func Test_GivenACartWithAnItem_WhenAddTheSameItemToCart_ThenUpdateQuantity(t *testing.T) {
+	cartCustomer, _ := customer.NewCustomer("John Mayer")
+	cart, _ := cart.NewCart(cartCustomer)
+	productToAdd, _ := product.NewProduct("Arroz Blanco Gallo", 8.00)
+	cart.AddItem(productToAdd, 1)
+
+	cartItem, err := cart.AddItem(productToAdd, 2)
+
+	assert.Nil(t, err)
+	assert.NotEmpty(t, cartItem)
+	assert.Equal(t, 3, cart.Size())
 }

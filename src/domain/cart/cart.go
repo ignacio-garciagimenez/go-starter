@@ -10,7 +10,7 @@ import (
 type Cart struct {
 	id         uuid.UUID
 	customerId uuid.UUID
-	items      []Item
+	items      map[uuid.UUID]item
 }
 
 func NewCart(customer *customer.Customer) (*Cart, error) {
@@ -21,28 +21,63 @@ func NewCart(customer *customer.Customer) (*Cart, error) {
 	return &Cart{
 		id:         uuid.New(),
 		customerId: customer.GetId(),
-		items:      []Item{},
+		items:      map[uuid.UUID]item{},
 	}, nil
 }
 
-func newItem(product *product.Product) Item {
-	return Item{
+func (c Cart) Size() int {
+	var cartSize int
+	for _, v := range c.items {
+		cartSize += v.quantity
+	}
+
+	return cartSize
+}
+
+func (c *Cart) AddItem(product *product.Product, quantity int) (item, error) {
+	if product == nil {
+		return item{}, errors.New("invalid product")
+	}
+
+	if quantity < 1 {
+		return item{}, errors.New("invalid quantity")
+	}
+
+	cartItem, err := c.findItem(product.GetId())
+	if err != nil {
+		return c.addNewItem(product, quantity), nil
+	}
+
+	return c.updateItemQuantity(cartItem, quantity), nil
+}
+
+func (c Cart) findItem(productId uuid.UUID) (item, error) {
+	cartItem, found := c.items[productId]
+	if !found {
+		return item{}, errors.New("item not found")
+	}
+
+	return cartItem, nil
+}
+
+func (c *Cart) addNewItem(product *product.Product, quantity int) item {
+	item := newItem(product, quantity)
+
+	c.items[product.GetId()] = item
+	return item
+}
+
+func (c *Cart) updateItemQuantity(cartItem item, quantityToAdd int) item {
+	cartItem.quantity += quantityToAdd
+	c.items[cartItem.productId] = cartItem
+
+	return cartItem
+}
+
+func newItem(product *product.Product, quantity int) item {
+	return item{
 		productId: product.GetId(),
 		price:     product.GetPrice(),
+		quantity:  quantity,
 	}
-}
-
-func (c Cart) Size() int {
-	return len(c.items)
-}
-
-func (c *Cart) AddItem(product *product.Product) (Item, error) {
-	if product == nil {
-		return Item{}, errors.New("invalid product")
-	}
-
-	item := newItem(product)
-	c.items = append(c.items, item)
-
-	return item, nil
 }

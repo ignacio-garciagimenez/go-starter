@@ -4,7 +4,8 @@ import (
 	"github.com/google/uuid"
 )
 
-type Item struct {
+type item struct {
 	productId uuid.UUID
 	price     float64
+	quantity  int
 }
