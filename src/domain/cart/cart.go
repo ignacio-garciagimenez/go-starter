@@ -2,26 +2,26 @@ package cart
 
 import (
 	"errors"
+	"github.com/bitlogic/go-startup/src/domain/customer"
 	"github.com/bitlogic/go-startup/src/domain/product"
+	"github.com/google/uuid"
 )
 
 type Cart struct {
-	items []Item
+	id         uuid.UUID
+	customerId uuid.UUID
+	items      []Item
 }
 
-func NewCart(itemsToAdd []*product.Product) (*Cart, error) {
-	if itemsToAdd == nil || len(itemsToAdd) < 1 {
-		return nil, errors.New("no items provided")
-	}
-
-	var items []Item
-
-	for _, product := range itemsToAdd {
-		items = append(items, newItem(product))
+func NewCart(customer *customer.Customer) (*Cart, error) {
+	if customer == nil {
+		return nil, errors.New("no customer provided")
 	}
 
 	return &Cart{
-		items: items,
+		id:         uuid.New(),
+		customerId: customer.GetId(),
+		items:      []Item{},
 	}, nil
 }
 
