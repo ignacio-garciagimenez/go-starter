@@ -11,8 +11,7 @@ type InMemoryCartRepository struct {
 }
 
 func (i *InMemoryCartRepository) Save(entity *cart.Cart) error {
-	err := i.inMemoryBaseRepository.Save(entity)
-	if err != nil {
+	if err := i.inMemoryBaseRepository.Save(entity); err != nil {
 		return err
 	}
 
