@@ -2,30 +2,38 @@ package repositories
 
 import (
 	"errors"
+
+	"github.com/bitlogic/go-startup/src/domain"
 	"github.com/bitlogic/go-startup/src/domain/customer"
 	"github.com/google/uuid"
 )
 
-type InMemoryCustomerRepository struct {
-	customers map[uuid.UUID]*customer.Customer
+type inMemoryBaseRepository[K domain.EntityKey, E domain.Entity[K]] struct {
+	entities map[K]E
 }
 
-func (i *InMemoryCustomerRepository) FindByID(key uuid.UUID) (*customer.Customer, error) {
-	entity, found := i.customers[key]
+func (i *inMemoryBaseRepository[K, E]) FindByID(key K) (E, error) {
+	entity, found := i.entities[key]
 	if !found {
-		return nil, errors.New("cart not found")
+		return *new(E), errors.New("cart not found")
 	}
 
 	return entity, nil
 }
 
-func (i *InMemoryCustomerRepository) Save(entity *customer.Customer) error {
-	i.customers[entity.GetID()] = entity
+func (i *inMemoryBaseRepository[K, E]) Save(entity E) error {
+	i.entities[entity.GetID()] = entity
 	return nil
+}
+
+type InMemoryCustomerRepository struct {
+	*inMemoryBaseRepository[uuid.UUID, *customer.Customer]
 }
 
 func NewInMemoryCustomerRepository() customer.Repository {
 	return &InMemoryCustomerRepository{
-		customers: map[uuid.UUID]*customer.Customer{},
+		inMemoryBaseRepository: &inMemoryBaseRepository[uuid.UUID, *customer.Customer]{
+			entities: map[uuid.UUID]*customer.Customer{},
+		},
 	}
 }

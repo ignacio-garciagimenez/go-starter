@@ -7,7 +7,7 @@ import (
 )
 
 type Product struct {
-	domain.Entity
+	domain.Entity[uuid.UUID]
 	id    uuid.UUID
 	name  string
 	price float64

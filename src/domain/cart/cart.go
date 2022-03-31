@@ -9,7 +9,7 @@ import (
 )
 
 type Cart struct {
-	domain.Entity
+	domain.Entity[uuid.UUID]
 	id         uuid.UUID
 	customerId uuid.UUID
 	items      map[uuid.UUID]item

@@ -2,13 +2,14 @@ package customer
 
 import (
 	"errors"
+	"strings"
+
 	"github.com/bitlogic/go-startup/src/domain"
 	"github.com/google/uuid"
-	"strings"
 )
 
 type Customer struct {
-	domain.Entity
+	domain.Entity[uuid.UUID]
 	id   uuid.UUID
 	name string
 }
