@@ -19,4 +19,9 @@ func Test_GivenACustomerRepository_WhenSave_ThenSaves(t *testing.T) {
 	customerToSave, _ := customer.NewCustomer("John Mayer")
 
 	repo.Save(customerToSave)
+	customerSaved, err := repo.FindByID(customerToSave.GetID())
+
+	assert.Nil(t, err)
+	assert.NotEmpty(t, customerSaved)
+
 }
