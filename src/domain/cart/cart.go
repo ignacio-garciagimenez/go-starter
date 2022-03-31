@@ -15,6 +15,13 @@ type Cart struct {
 	items      map[uuid.UUID]item
 }
 
+type item struct {
+	domain.ValueObject
+	productId uuid.UUID
+	price     float64
+	quantity  int
+}
+
 func NewCart(customer *customer.Customer) (*Cart, error) {
 	if customer == nil {
 		return nil, errors.New("no customer provided")
@@ -99,4 +106,8 @@ func newItem(product *product.Product, quantity int) item {
 		price:     product.GetPrice(),
 		quantity:  quantity,
 	}
+}
+
+func (i item) getTotal() float64 {
+	return i.price * float64(i.quantity)
 }
