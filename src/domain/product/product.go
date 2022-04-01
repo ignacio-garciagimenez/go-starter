@@ -2,15 +2,16 @@ package product
 
 import (
 	"errors"
+
 	"github.com/bitlogic/go-startup/src/domain"
 	"github.com/google/uuid"
 )
 
 type Product struct {
 	domain.Entity[uuid.UUID]
-	id    uuid.UUID
-	name  string
-	price float64
+	id        uuid.UUID
+	name      string
+	unitPrice float64
 }
 
 func NewProduct(name string, price float64) (*Product, error) {
@@ -19,9 +20,9 @@ func NewProduct(name string, price float64) (*Product, error) {
 	}
 
 	return &Product{
-		id:    uuid.New(),
-		name:  name,
-		price: price,
+		id:        uuid.New(),
+		name:      name,
+		unitPrice: price,
 	}, nil
 }
 
@@ -34,5 +35,5 @@ func (p Product) GetName() string {
 }
 
 func (p Product) GetPrice() float64 {
-	return p.price
+	return p.unitPrice
 }
