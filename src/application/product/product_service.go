@@ -26,7 +26,9 @@ func (s *ProductService) CreateNewProduct(command CreateProductCommand) (CreateP
 		return CreateProductResult{}, err
 	}
 
-	s.repository.Save(newProduct)
+	if err := s.repository.Save(newProduct); err != nil {
+		return CreateProductResult{}, err
+	}
 
 	return CreateProductResult{
 		Id:          newProduct.GetID(),

@@ -1,6 +1,7 @@
 package test
 
 import (
+	"errors"
 	"testing"
 
 	application "github.com/bitlogic/go-startup/src/application/product"
@@ -29,7 +30,11 @@ func Test_GivenAProductRepository_WhenNewProductService_ThenReturnAProductServic
 }
 
 func Test_GivenAWellFormedCreateProductCommand_WhenCreateNewProduct_ThenReturnANewProduct(t *testing.T) {
-	repositoryMock := &productRepositoryMock{}
+	repositoryMock := &productRepositoryMock{
+		save: func(product *product.Product) error {
+			return nil
+		},
+	}
 	productService, _ := application.NewProductService(repositoryMock)
 	createProductCommand := application.CreateProductCommand{
 		ProductName: "Pepsi 2.25Lt",
@@ -49,7 +54,11 @@ func Test_GivenAWellFormedCreateProductCommand_WhenCreateNewProduct_ThenReturnAN
 }
 
 func Test_GivenACreateProductCommandWithInvalidName_WhenCreateNewProduct_ThenReturnError(t *testing.T) {
-	repositoryMock := &productRepositoryMock{}
+	repositoryMock := &productRepositoryMock{
+		save: func(product *product.Product) error {
+			return nil
+		},
+	}
 	productService, _ := application.NewProductService(repositoryMock)
 	createProductCommand := application.CreateProductCommand{
 		ProductName: "Pepsi",
@@ -66,7 +75,11 @@ func Test_GivenACreateProductCommandWithInvalidName_WhenCreateNewProduct_ThenRet
 }
 
 func Test_GivenACreateProductCommandWithInvalidPrice_WhenCreateNewProduct_ThenReturnError(t *testing.T) {
-	repositoryMock := &productRepositoryMock{}
+	repositoryMock := &productRepositoryMock{
+		save: func(product *product.Product) error {
+			return nil
+		},
+	}
 	productService, _ := application.NewProductService(repositoryMock)
 	createProductCommand := application.CreateProductCommand{
 		ProductName: "Pepsi 2.25Lts",
@@ -82,15 +95,39 @@ func Test_GivenACreateProductCommandWithInvalidPrice_WhenCreateNewProduct_ThenRe
 	assert.Equal(t, 0, repositoryMock.callCount)
 }
 
+func Test_GivenSavingProductFails_WhenCreateNewProduct_ThenReturnError(t *testing.T) {
+	repositoryMock := &productRepositoryMock{
+		save: func(product *product.Product) error {
+			return errors.New("failed to save entity")
+		},
+	}
+	productService, _ := application.NewProductService(repositoryMock)
+	createProductCommand := application.CreateProductCommand{
+		ProductName: "Pepsi 2.25Lts",
+		UnitPrice:   10.00,
+	}
+
+	output, err := productService.CreateNewProduct(createProductCommand)
+
+	if assert.Error(t, err) {
+		assert.Equal(t, "failed to save entity", err.Error())
+	}
+	assert.Empty(t, output)
+	assert.Equal(t, 1, repositoryMock.callCount)
+}
+
 type productRepositoryMock struct {
 	callCount int
+	findByID  func(uuid.UUID) (*product.Product, error)
+	save      func(*product.Product) error
 }
 
 func (m *productRepositoryMock) FindByID(productId uuid.UUID) (*product.Product, error) {
-	return nil, nil
+	m.callCount++
+	return m.findByID(productId)
 }
 
-func (m *productRepositoryMock) Save(*product.Product) error {
+func (m *productRepositoryMock) Save(newProduct *product.Product) error {
 	m.callCount++
-	return nil
+	return m.save(newProduct)
 }
