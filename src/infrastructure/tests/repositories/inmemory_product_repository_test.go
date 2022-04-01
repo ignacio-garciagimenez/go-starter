@@ -1,10 +1,12 @@
 package repositories
 
 import (
+	"testing"
+
 	"github.com/bitlogic/go-startup/src/domain/product"
 	"github.com/bitlogic/go-startup/src/infrastructure/repositories"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func Test_GivenNothing_WhenNewInMemoryProductRepository_ThenReturnAProductRepository(t *testing.T) {
@@ -19,9 +21,21 @@ func Test_GivenAProductRepository_WhenSave_ThenSaves(t *testing.T) {
 	productToSave, _ := product.NewProduct("Arroz con mani", 10.00)
 
 	repo.Save(productToSave)
-	customerSaved, err := repo.FindByID(productToSave.GetID())
+	productSaved, err := repo.FindByID(productToSave.GetID())
 
 	assert.Nil(t, err)
-	assert.NotEmpty(t, customerSaved)
+	assert.NotEmpty(t, productSaved)
 
+}
+
+func Test_GivenAProductRepositoryWithItems_WhenFindByIDWithUnexistingID_ThenReturnesError(t *testing.T) {
+	repo := repositories.NewInMemoryProductRepository()
+	productToSave, _ := product.NewProduct("Arroz con mani", 10.00)
+	repo.Save(productToSave)
+
+	productSaved, err := repo.FindByID(uuid.New())
+
+	assert.NotNil(t, err)
+	assert.Equal(t, "entity not found", err.Error())
+	assert.Nil(t, productSaved)
 }

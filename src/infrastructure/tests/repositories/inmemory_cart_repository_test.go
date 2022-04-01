@@ -1,12 +1,14 @@
 package repositories
 
 import (
+	"testing"
+
 	"github.com/bitlogic/go-startup/src/domain/cart"
 	"github.com/bitlogic/go-startup/src/domain/customer"
 	"github.com/bitlogic/go-startup/src/domain/product"
 	"github.com/bitlogic/go-startup/src/infrastructure/repositories"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func Test_GivenNothing_WhenNewInMemoryCartRepository_ThenReturnACartRepository(t *testing.T) {
@@ -43,6 +45,24 @@ func Test_GivenACartRepository_WhenGetByCustomer_ThenReturnsTheCustomersCart(t *
 	cartsSaved := repo.GetCustomerCarts(aCustomer.GetID())
 
 	assert.NotEmpty(t, cartsSaved)
+	assert.Equal(t, 1, len(cartsSaved))
 	assert.Equal(t, 1, cartsSaved[0].Size())
 	assert.Equal(t, 10.00, cartsSaved[0].GetTotal())
+}
+
+func Test_GivenACartRepositoryWithOneCart_WhenFindByIDWithUnexistingID_ThenReturnsError(t *testing.T) {
+	repo := repositories.NewInMemoryCartRepository()
+	aCustomer, _ := customer.NewCustomer("John Mayer")
+	aProduct, _ := product.NewProduct("Arroz con leche", 10.00)
+	cartToSave, _ := cart.NewCart(aCustomer)
+	cartToSave.AddItem(aProduct, 1)
+
+	repo.Save(cartToSave)
+	cartSaved, err := repo.FindByID(uuid.New())
+
+	if assert.Error(t, err) {
+		assert.Equal(t, "entity not found", err.Error())
+	}
+	assert.Nil(t, cartSaved)
+
 }

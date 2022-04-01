@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"errors"
+
 	"github.com/bitlogic/go-startup/src/domain"
 )
 
@@ -10,12 +11,12 @@ type inMemoryBaseRepository[K domain.EntityKey, E domain.Entity[K]] struct {
 }
 
 func (i *inMemoryBaseRepository[K, E]) FindByID(key K) (E, error) {
-	entity, found := i.entities[key]
-	if !found {
-		return *new(E), errors.New("cart not found")
+	var entity E
+	if entity, found := i.entities[key]; found {
+		return entity, nil
 	}
 
-	return entity, nil
+	return entity, errors.New("entity not found")
 }
 
 func (i *inMemoryBaseRepository[K, E]) Save(entity E) error {
