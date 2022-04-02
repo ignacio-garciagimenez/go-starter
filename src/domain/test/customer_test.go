@@ -37,4 +37,7 @@ func Test_GivenAValidName_WhenNewCustomer_ThenReturnANonEmptyCustomer(t *testing
 	assert.Nil(t, err)
 	assert.NotNil(t, customer)
 	assert.NotEmpty(t, customer)
+	if assert.NotEmpty(t, customer.GetDomainEvents()) {
+		assert.Equal(t, 1, len(customer.GetDomainEvents()))
+	}
 }

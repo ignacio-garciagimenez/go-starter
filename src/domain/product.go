@@ -17,13 +17,21 @@ func NewProduct(name string, price float64) (*Product, error) {
 		return nil, errors.New("invalid arguments")
 	}
 
-	return &Product{
+	product := &Product{
 		baseEntity: &baseEntity[uuid.UUID]{
 			id: uuid.New(),
 		},
 		name:      name,
 		unitPrice: price,
-	}, nil
+	}
+
+	product.addDomainEvent(ProductCreated{
+		ProductId:        product.id,
+		ProductName:      product.name,
+		ProductUnitPrice: product.unitPrice,
+	})
+
+	return product, nil
 }
 
 func (p Product) GetName() string {

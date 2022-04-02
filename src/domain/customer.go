@@ -22,10 +22,17 @@ func NewCustomer(name string) (*Customer, error) {
 		return nil, errors.New("invalid name")
 	}
 
-	return &Customer{
+	customer := &Customer{
 		baseEntity: &baseEntity[uuid.UUID]{
 			id: uuid.New(),
 		},
 		name: trimmedName,
-	}, nil
+	}
+
+	customer.addDomainEvent(CustomerCreated{
+		CustomerId:   customer.id,
+		CustomerName: customer.name,
+	})
+
+	return customer, nil
 }

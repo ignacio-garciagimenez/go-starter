@@ -24,13 +24,20 @@ func NewCart(customer *Customer) (*Cart, error) {
 		return nil, errors.New("no customer provided")
 	}
 
-	return &Cart{
+	cart := &Cart{
 		baseEntity: &baseEntity[uuid.UUID]{
 			id: uuid.New(),
 		},
 		customerId: customer.GetID(),
 		items:      map[uuid.UUID]item{},
-	}, nil
+	}
+
+	cart.addDomainEvent(CartCreated{
+		CartId:     cart.id,
+		CustomerId: cart.customerId,
+	})
+
+	return cart, nil
 }
 
 func (c Cart) Size() int {
@@ -51,35 +58,24 @@ func (c *Cart) AddItem(product *Product, quantity int) (item, error) {
 		return item{}, errors.New("invalid quantity")
 	}
 
-	cartItem, err := c.findItem(product.GetID())
-	if err != nil {
-		return c.addNewItem(product, quantity), nil
+	productId := product.GetID()
+	if cartItem, found := c.items[productId]; found {
+		c.items[productId] = cartItem.addQuantity(quantity)
+	} else {
+		c.items[productId] = item{
+			productId: product.GetID(),
+			price:     product.GetPrice(),
+			quantity:  quantity,
+		}
 	}
 
-	return c.updateItemQuantity(cartItem, quantity), nil
-}
+	c.addDomainEvent(ItemAddedToCart{
+		CartId:    c.id,
+		ProductId: productId,
+		Quantity:  quantity,
+	})
 
-func (c Cart) findItem(productId uuid.UUID) (item, error) {
-	cartItem, found := c.items[productId]
-	if !found {
-		return item{}, errors.New("item not found")
-	}
-
-	return cartItem, nil
-}
-
-func (c *Cart) addNewItem(product *Product, quantity int) item {
-	item := newItem(product, quantity)
-
-	c.items[product.GetID()] = item
-	return item
-}
-
-func (c *Cart) updateItemQuantity(cartItem item, quantityToAdd int) item {
-	cartItem.quantity += quantityToAdd
-	c.items[cartItem.productId] = cartItem
-
-	return cartItem
+	return c.items[productId], nil
 }
 
 func (c Cart) GetTotal() float64 {
@@ -104,14 +100,6 @@ func (c Cart) GetItems() []item {
 	return output
 }
 
-func newItem(product *Product, quantity int) item {
-	return item{
-		productId: product.GetID(),
-		price:     product.GetPrice(),
-		quantity:  quantity,
-	}
-}
-
 func (i item) GetProductId() uuid.UUID {
 	return i.productId
 }
@@ -126,4 +114,12 @@ func (i item) GetQuantity() int {
 
 func (i item) getTotal() float64 {
 	return i.price * float64(i.quantity)
+}
+
+func (i item) addQuantity(quantityToAdd int) item {
+	return item{
+		productId: i.productId,
+		price:     i.price,
+		quantity:  i.quantity + quantityToAdd,
+	}
 }

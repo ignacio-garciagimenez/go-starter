@@ -34,7 +34,9 @@ func (e *baseEntity[K]) addDomainEvent(event DomainEvent) {
 
 func (e baseEntity[K]) GetDomainEvents() []DomainEvent {
 	var output []DomainEvent
-	copy(output, e.domainEvents)
+	for _, domainEvent := range e.domainEvents {
+		output = append(output, domainEvent)
+	}
 	return output
 }
 

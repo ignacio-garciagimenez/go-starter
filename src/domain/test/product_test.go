@@ -36,4 +36,7 @@ func Test_GivenValidParameters_WhenNewProduct_ThenReturnAProduct(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotNil(t, product)
+	if assert.NotEmpty(t, product.GetDomainEvents()) {
+		assert.Equal(t, 1, len(product.GetDomainEvents()))
+	}
 }
