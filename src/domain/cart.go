@@ -16,7 +16,6 @@ type Cart struct {
 }
 
 type item struct {
-	ValueObject
 	productId ProductId
 	price     float64
 	quantity  int
