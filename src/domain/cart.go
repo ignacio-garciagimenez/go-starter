@@ -128,3 +128,7 @@ func (i item) addQuantity(quantityToAdd int) item {
 		quantity:  i.quantity + quantityToAdd,
 	}
 }
+
+func (v item) EqualsTo(other ValueObject) bool {
+	return reflect.DeepEqual(v, other)
+}

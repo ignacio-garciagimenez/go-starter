@@ -150,3 +150,36 @@ func Test_GivenACart_WhenEqualsToAnotherTypeOfEntity_ThenReturnsFalse(t *testing
 	assert.False(t, cart.EqualsTo(cartCustomer))
 	assert.False(t, cart.EqualsTo(product))
 }
+
+func Test_GivenAnItem_WhenEqualsToItself_ThenReturnsTrue(t *testing.T) {
+	cartCustomer, _ := domain.NewCustomer("John Mayer")
+	product, _ := domain.NewProduct("Pepsi Ligh", 10.00)
+	cart, _ := domain.NewCart(cartCustomer)
+
+	item, _ := cart.AddItem(product, 1)
+
+	assert.True(t, item.EqualsTo(item))
+}
+
+func Test_GivenAnItem_WhenEqualsToADiferentItem_ThenReturnsFalse(t *testing.T) {
+	cartCustomer, _ := domain.NewCustomer("John Mayer")
+	product, _ := domain.NewProduct("Pepsi Ligh", 10.00)
+	cart, _ := domain.NewCart(cartCustomer)
+
+	item, _ := cart.AddItem(product, 1)
+	item2, _ := cart.AddItem(product, 2)
+
+	assert.False(t, item.EqualsTo(item2))
+}
+
+func Test_GivenAnItem_WhenEqualsToAnItemWithTheSameValues_ThenReturnsTrue(t *testing.T) {
+	cartCustomer, _ := domain.NewCustomer("John Mayer")
+	product, _ := domain.NewProduct("Pepsi Ligh", 10.00)
+	cart, _ := domain.NewCart(cartCustomer)
+	cart2, _ := domain.NewCart(cartCustomer)
+
+	item, _ := cart.AddItem(product, 1)
+	item2, _ := cart2.AddItem(product, 1)
+
+	assert.True(t, item.EqualsTo(item2))
+}

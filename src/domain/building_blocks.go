@@ -1,11 +1,13 @@
 package domain
 
-type ValueObject interface{}
+type ValueObject interface {
+	EqualsTo(ValueObject) bool
+}
 type DomainEvent interface{}
 
 type Repository[K comparable, E Entity[K]] interface {
-	FindByID(key K) (E, error)
-	Save(entity E) error
+	FindByID(K) (E, error)
+	Save(E) error
 }
 
 type Entity[K comparable] interface {
