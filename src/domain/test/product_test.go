@@ -53,10 +53,3 @@ func Test_GivenAProduct_WhenEqualsToAnotherProduct_ThenReturnsFalse(t *testing.T
 
 	assert.False(t, product.EqualsTo(product2))
 }
-
-func Test_GivenAProduct_WhenEqualsToAnotherTypeOfEntity_ThenReturnsFalse(t *testing.T) {
-	customer, _ := domain.NewCustomer("John Mayer")
-	product, _ := domain.NewProduct("Pepsi Ligh", 10.00)
-
-	assert.False(t, product.EqualsTo(customer))
-}

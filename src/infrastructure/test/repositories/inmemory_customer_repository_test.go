@@ -33,7 +33,7 @@ func Test_GivenACustomerRepositoryWithOneItem_WhenFinByIDWithUnexistingID_ThenRe
 	customerToSave, _ := domain.NewCustomer("John Mayer")
 	repo.Save(customerToSave)
 
-	customerSaved, err := repo.FindByID(uuid.New())
+	customerSaved, err := repo.FindByID(domain.CustomerId(uuid.New()))
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "entity not found", err.Error())

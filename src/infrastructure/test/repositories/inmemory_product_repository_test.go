@@ -33,7 +33,7 @@ func Test_GivenAProductRepositoryWithItems_WhenFindByIDWithUnexistingID_ThenRetu
 	productToSave, _ := domain.NewProduct("Arroz con mani", 10.00)
 	repo.Save(productToSave)
 
-	productSaved, err := repo.FindByID(uuid.New())
+	productSaved, err := repo.FindByID(domain.ProductId(uuid.New()))
 
 	assert.NotNil(t, err)
 	assert.Equal(t, "entity not found", err.Error())

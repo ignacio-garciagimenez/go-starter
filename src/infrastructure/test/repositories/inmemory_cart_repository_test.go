@@ -56,7 +56,7 @@ func Test_GivenACartRepositoryWithOneCart_WhenFindByIDWithUnexistingID_ThenRetur
 	cartToSave.AddItem(aProduct, 1)
 
 	repo.Save(cartToSave)
-	cartSaved, err := repo.FindByID(uuid.New())
+	cartSaved, err := repo.FindByID(domain.CartId(uuid.New()))
 
 	if assert.Error(t, err) {
 		assert.Equal(t, "entity not found", err.Error())

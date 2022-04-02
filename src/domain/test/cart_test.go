@@ -142,15 +142,6 @@ func Test_GivenACart_WhenEqualsToAnotherCart_ThenReturnsFalse(t *testing.T) {
 	assert.False(t, cart.EqualsTo(cart2))
 }
 
-func Test_GivenACart_WhenEqualsToAnotherTypeOfEntity_ThenReturnsFalse(t *testing.T) {
-	cartCustomer, _ := domain.NewCustomer("John Mayer")
-	product, _ := domain.NewProduct("Pepsi Ligh", 10.00)
-	cart, _ := domain.NewCart(cartCustomer)
-
-	assert.False(t, cart.EqualsTo(cartCustomer))
-	assert.False(t, cart.EqualsTo(product))
-}
-
 func Test_GivenAnItem_WhenEqualsToItself_ThenReturnsTrue(t *testing.T) {
 	cartCustomer, _ := domain.NewCustomer("John Mayer")
 	product, _ := domain.NewProduct("Pepsi Ligh", 10.00)

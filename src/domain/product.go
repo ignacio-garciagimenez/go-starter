@@ -7,8 +7,10 @@ import (
 	"github.com/google/uuid"
 )
 
+type ProductId uuid.UUID
+
 type Product struct {
-	*baseEntity[uuid.UUID]
+	*baseEntity[ProductId]
 	name      string
 	unitPrice float64
 }
@@ -19,8 +21,8 @@ func NewProduct(name string, price float64) (*Product, error) {
 	}
 
 	product := &Product{
-		baseEntity: &baseEntity[uuid.UUID]{
-			id: uuid.New(),
+		baseEntity: &baseEntity[ProductId]{
+			id: ProductId(uuid.New()),
 		},
 		name:      name,
 		unitPrice: price,
@@ -43,7 +45,7 @@ func (p Product) GetPrice() float64 {
 	return p.unitPrice
 }
 
-func (p *Product) EqualsTo(entity Entity[uuid.UUID]) bool {
+func (p *Product) EqualsTo(entity Entity[ProductId]) bool {
 	return reflect.TypeOf(p) == reflect.TypeOf(entity) &&
 		p.GetID() == entity.GetID()
 }

@@ -8,8 +8,10 @@ import (
 	"github.com/google/uuid"
 )
 
+type CustomerId uuid.UUID
+
 type Customer struct {
-	*baseEntity[uuid.UUID]
+	*baseEntity[CustomerId]
 	name string
 }
 
@@ -24,8 +26,8 @@ func NewCustomer(name string) (*Customer, error) {
 	}
 
 	customer := &Customer{
-		baseEntity: &baseEntity[uuid.UUID]{
-			id: uuid.New(),
+		baseEntity: &baseEntity[CustomerId]{
+			id: CustomerId(uuid.New()),
 		},
 		name: trimmedName,
 	}
@@ -38,7 +40,7 @@ func NewCustomer(name string) (*Customer, error) {
 	return customer, nil
 }
 
-func (c *Customer) EqualsTo(entity Entity[uuid.UUID]) bool {
+func (c *Customer) EqualsTo(entity Entity[CustomerId]) bool {
 	return reflect.TypeOf(c) == reflect.TypeOf(entity) &&
 		c.GetID() == entity.GetID()
 }

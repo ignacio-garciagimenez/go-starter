@@ -1,16 +1,14 @@
 package domain
 
-import "github.com/google/uuid"
-
 type ProductRepository interface {
-	Repository[uuid.UUID, *Product]
+	Repository[ProductId, *Product]
 }
 
 type CustomerRepository interface {
-	Repository[uuid.UUID, *Customer]
+	Repository[CustomerId, *Customer]
 }
 
 type CartRepository interface {
-	Repository[uuid.UUID, *Cart]
-	GetCustomerCarts(customerId uuid.UUID) []*Cart
+	Repository[CartId, *Cart]
+	GetCustomerCarts(customerId CustomerId) []*Cart
 }

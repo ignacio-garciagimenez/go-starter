@@ -7,15 +7,17 @@ import (
 	"github.com/google/uuid"
 )
 
+type CartId uuid.UUID
+
 type Cart struct {
-	*baseEntity[uuid.UUID]
-	customerId uuid.UUID
-	items      map[uuid.UUID]item
+	*baseEntity[CartId]
+	customerId CustomerId
+	items      map[ProductId]item
 }
 
 type item struct {
 	ValueObject
-	productId uuid.UUID
+	productId ProductId
 	price     float64
 	quantity  int
 }
@@ -26,11 +28,11 @@ func NewCart(customer *Customer) (*Cart, error) {
 	}
 
 	cart := &Cart{
-		baseEntity: &baseEntity[uuid.UUID]{
-			id: uuid.New(),
+		baseEntity: &baseEntity[CartId]{
+			id: CartId(uuid.New()),
 		},
 		customerId: customer.GetID(),
-		items:      map[uuid.UUID]item{},
+		items:      map[ProductId]item{},
 	}
 
 	cart.addDomainEvent(CartCreated{
@@ -41,7 +43,7 @@ func NewCart(customer *Customer) (*Cart, error) {
 	return cart, nil
 }
 
-func (c *Cart) EqualsTo(entity Entity[uuid.UUID]) bool {
+func (c *Cart) EqualsTo(entity Entity[CartId]) bool {
 	return reflect.TypeOf(c) == reflect.TypeOf(entity) && c.GetID() == entity.GetID()
 }
 
@@ -92,7 +94,7 @@ func (c Cart) GetTotal() float64 {
 	return total
 }
 
-func (c Cart) GetCustomerID() uuid.UUID {
+func (c Cart) GetCustomerID() CustomerId {
 	return c.customerId
 }
 
@@ -105,7 +107,7 @@ func (c Cart) GetItems() []item {
 	return output
 }
 
-func (i item) GetProductId() uuid.UUID {
+func (i item) GetProductId() ProductId {
 	return i.productId
 }
 

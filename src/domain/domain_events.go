@@ -1,27 +1,25 @@
 package domain
 
-import "github.com/google/uuid"
-
 type CartCreated struct {
 	DomainEvent
-	CartId     uuid.UUID
-	CustomerId uuid.UUID
+	CartId     CartId
+	CustomerId CustomerId
 }
 
 type ItemAddedToCart struct {
 	DomainEvent
-	CartId    uuid.UUID
-	ProductId uuid.UUID
+	CartId    CartId
+	ProductId ProductId
 	Quantity  int
 }
 
 type CustomerCreated struct {
-	CustomerId   uuid.UUID
+	CustomerId   CustomerId
 	CustomerName string
 }
 
 type ProductCreated struct {
-	ProductId        uuid.UUID
+	ProductId        ProductId
 	ProductName      string
 	ProductUnitPrice float64
 }
