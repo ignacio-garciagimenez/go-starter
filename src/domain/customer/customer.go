@@ -18,6 +18,10 @@ func (c Customer) GetID() uuid.UUID {
 	return c.id
 }
 
+func (c Customer) GetName() string {
+	return c.name
+}
+
 func NewCustomer(name string) (*Customer, error) {
 	trimmedName := strings.TrimSpace(name)
 	if len(trimmedName) < 8 {

@@ -2,6 +2,7 @@ package cart
 
 import (
 	"errors"
+
 	"github.com/bitlogic/go-startup/src/domain"
 	"github.com/bitlogic/go-startup/src/domain/customer"
 	"github.com/bitlogic/go-startup/src/domain/product"
@@ -100,12 +101,33 @@ func (c Cart) GetCustomerID() uuid.UUID {
 	return c.customerId
 }
 
+func (c Cart) GetItems() []item {
+	var output []item
+	for _, cartItem := range c.items {
+		output = append(output, cartItem)
+	}
+
+	return output
+}
+
 func newItem(product *product.Product, quantity int) item {
 	return item{
 		productId: product.GetID(),
 		price:     product.GetPrice(),
 		quantity:  quantity,
 	}
+}
+
+func (i item) GetProductId() uuid.UUID {
+	return i.productId
+}
+
+func (i item) GetUnitPrice() float64 {
+	return i.price
+}
+
+func (i item) GetQuantity() int {
+	return i.quantity
 }
 
 func (i item) getTotal() float64 {

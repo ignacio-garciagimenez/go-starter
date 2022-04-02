@@ -3,6 +3,7 @@ package application
 import (
 	"errors"
 
+	"github.com/bitlogic/go-startup/src/application"
 	"github.com/bitlogic/go-startup/src/domain/product"
 )
 
@@ -20,19 +21,19 @@ func NewProductService(repository product.Repository) (*ProductService, error) {
 	}, nil
 }
 
-func (s *ProductService) CreateNewProduct(command CreateProductCommand) (CreateProductResult, error) {
+func (s *ProductService) CreateNewProduct(command CreateProductCommand) (application.ProductDto, error) {
 	newProduct, err := product.NewProduct(command.ProductName, command.UnitPrice)
 	if err != nil {
-		return CreateProductResult{}, err
+		return application.ProductDto{}, err
 	}
 
 	if err := s.repository.Save(newProduct); err != nil {
-		return CreateProductResult{}, err
+		return application.ProductDto{}, err
 	}
 
-	return CreateProductResult{
-		Id:          newProduct.GetID(),
-		ProductName: newProduct.GetName(),
-		UnitPrice:   newProduct.GetPrice(),
+	return application.ProductDto{
+		Id:        newProduct.GetID(),
+		Name:      newProduct.GetName(),
+		UnitPrice: newProduct.GetPrice(),
 	}, nil
 }

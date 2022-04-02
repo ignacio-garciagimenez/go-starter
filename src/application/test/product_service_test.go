@@ -29,7 +29,7 @@ func Test_GivenAProductRepository_WhenNewProductService_ThenReturnAProductServic
 	assert.NotNil(t, productService)
 }
 
-func Test_GivenAWellFormedCreateProductCommand_WhenCreateNewProduct_ThenReturnANewProduct(t *testing.T) {
+func Test_GivenAWellFormedCreateProductCommand_WhenCreateNewProduct_ThenReturnANewProductDto(t *testing.T) {
 	repositoryMock := &productRepositoryMock{
 		save: func(product *product.Product) error {
 			return nil
@@ -46,7 +46,7 @@ func Test_GivenAWellFormedCreateProductCommand_WhenCreateNewProduct_ThenReturnAN
 	assert.Nil(t, err)
 	if assert.NotEmpty(t, output) {
 		assert.NotNil(t, output.Id)
-		assert.Equal(t, "Pepsi 2.25Lt", output.ProductName)
+		assert.Equal(t, "Pepsi 2.25Lt", output.Name)
 		assert.Equal(t, 10.00, output.UnitPrice)
 	}
 
