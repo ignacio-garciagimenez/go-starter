@@ -6,7 +6,7 @@ import (
 	"github.com/bitlogic/go-startup/src/domain"
 )
 
-type inMemoryBaseRepository[K domain.EntityKey, E domain.Entity[K]] struct {
+type inMemoryBaseRepository[K comparable, E domain.Entity[K]] struct {
 	entities map[K]E
 }
 

@@ -4,10 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	application "github.com/bitlogic/go-startup/src/application/cart"
-	"github.com/bitlogic/go-startup/src/domain/cart"
-	"github.com/bitlogic/go-startup/src/domain/customer"
-	"github.com/bitlogic/go-startup/src/domain/product"
+	"github.com/bitlogic/go-startup/src/application"
+	"github.com/bitlogic/go-startup/src/domain"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -48,13 +46,13 @@ func Test_GivenAllRepositories_WhenNewCartService_ThenReturnACartService(t *test
 
 func Test_GivenAValidCreateCartCommand_WhenCreateNewCart_ThenReturnACreateCartResponse(t *testing.T) {
 	cartRepository := &cartRepositoryMock{
-		save: func(cart *cart.Cart) error {
+		save: func(cart *domain.Cart) error {
 			return nil
 		},
 	}
-	savedCustomer, _ := customer.NewCustomer("Grady Booch")
+	savedCustomer, _ := domain.NewCustomer("Grady Booch")
 	customerRepository := &customerRepositoryMock{
-		findById: func(customerId uuid.UUID) (*customer.Customer, error) {
+		findById: func(customerId uuid.UUID) (*domain.Customer, error) {
 			return savedCustomer, nil
 		},
 	}
@@ -78,12 +76,12 @@ func Test_GivenAValidCreateCartCommand_WhenCreateNewCart_ThenReturnACreateCartRe
 
 func Test_GivenACreateCartCommandWithNonExistinantCustomerId_WhenCreateNewCart_ThenReturnError(t *testing.T) {
 	cartRepository := &cartRepositoryMock{
-		save: func(cart *cart.Cart) error {
+		save: func(cart *domain.Cart) error {
 			return nil
 		},
 	}
 	customerRepository := &customerRepositoryMock{
-		findById: func(customerId uuid.UUID) (*customer.Customer, error) {
+		findById: func(customerId uuid.UUID) (*domain.Customer, error) {
 			return nil, errors.New("entity not found")
 		},
 	}
@@ -104,13 +102,13 @@ func Test_GivenACreateCartCommandWithNonExistinantCustomerId_WhenCreateNewCart_T
 
 func Test_GivenCartRepositoryFailsToSaveNewlyCreatedCart_WhenCreateNewCart_ThenReturnError(t *testing.T) {
 	cartRepository := &cartRepositoryMock{
-		save: func(cart *cart.Cart) error {
+		save: func(cart *domain.Cart) error {
 			return errors.New("failed to save entity")
 		},
 	}
-	savedCustomer, _ := customer.NewCustomer("Grady Booch")
+	savedCustomer, _ := domain.NewCustomer("Grady Booch")
 	customerRepository := &customerRepositoryMock{
-		findById: func(customerId uuid.UUID) (*customer.Customer, error) {
+		findById: func(customerId uuid.UUID) (*domain.Customer, error) {
 			return savedCustomer, nil
 		},
 	}
@@ -131,12 +129,12 @@ func Test_GivenCartRepositoryFailsToSaveNewlyCreatedCart_WhenCreateNewCart_ThenR
 
 func Test_GivenCustomerRepositoryReturnsNilCustomerAndNilError_WhenCreateNewCart_ThenReturnError(t *testing.T) {
 	cartRepository := &cartRepositoryMock{
-		save: func(cart *cart.Cart) error {
+		save: func(cart *domain.Cart) error {
 			return nil
 		},
 	}
 	customerRepository := &customerRepositoryMock{
-		findById: func(customerId uuid.UUID) (*customer.Customer, error) {
+		findById: func(customerId uuid.UUID) (*domain.Customer, error) {
 			return nil, nil
 		},
 	}
@@ -156,21 +154,21 @@ func Test_GivenCustomerRepositoryReturnsNilCustomerAndNilError_WhenCreateNewCart
 }
 
 func Test_GivenACart_WhenAddItemToCart_ThenTheItemIsAddedToTheCart(t *testing.T) {
-	vaughnVernon, _ := customer.NewCustomer("Vaughn Vernon")
-	vaughnVernonsCart, _ := cart.NewCart(vaughnVernon)
-	productVaughnVernonWantsToAdd, _ := product.NewProduct("Implementing Domain Driven Design Book", 50.00)
+	vaughnVernon, _ := domain.NewCustomer("Vaughn Vernon")
+	vaughnVernonsCart, _ := domain.NewCart(vaughnVernon)
+	productVaughnVernonWantsToAdd, _ := domain.NewProduct("Implementing Domain Driven Design Book", 50.00)
 
 	productRepository := &productRepositoryMock{
-		findByID: func(productId uuid.UUID) (*product.Product, error) {
+		findByID: func(productId uuid.UUID) (*domain.Product, error) {
 			return productVaughnVernonWantsToAdd, nil
 		},
 	}
 
 	cartRepository := &cartRepositoryMock{
-		findById: func(cartId uuid.UUID) (*cart.Cart, error) {
+		findById: func(cartId uuid.UUID) (*domain.Cart, error) {
 			return vaughnVernonsCart, nil
 		},
-		save: func(cart *cart.Cart) error {
+		save: func(cart *domain.Cart) error {
 			return nil
 		},
 	}
@@ -198,21 +196,21 @@ func Test_GivenACart_WhenAddItemToCart_ThenTheItemIsAddedToTheCart(t *testing.T)
 }
 
 func Test_GivenAnInvalidQuantity_WhenAddItemToCart_ThenReturnError(t *testing.T) {
-	vaughnVernon, _ := customer.NewCustomer("Vaughn Vernon")
-	vaughnVernonsCart, _ := cart.NewCart(vaughnVernon)
-	productVaughnVernonWantsToAdd, _ := product.NewProduct("Implementing Domain Driven Design Book", 50.00)
+	vaughnVernon, _ := domain.NewCustomer("Vaughn Vernon")
+	vaughnVernonsCart, _ := domain.NewCart(vaughnVernon)
+	productVaughnVernonWantsToAdd, _ := domain.NewProduct("Implementing Domain Driven Design Book", 50.00)
 
 	productRepository := &productRepositoryMock{
-		findByID: func(productId uuid.UUID) (*product.Product, error) {
+		findByID: func(productId uuid.UUID) (*domain.Product, error) {
 			return productVaughnVernonWantsToAdd, nil
 		},
 	}
 
 	cartRepository := &cartRepositoryMock{
-		findById: func(cartId uuid.UUID) (*cart.Cart, error) {
+		findById: func(cartId uuid.UUID) (*domain.Cart, error) {
 			return vaughnVernonsCart, nil
 		},
-		save: func(cart *cart.Cart) error {
+		save: func(cart *domain.Cart) error {
 			return nil
 		},
 	}
@@ -234,20 +232,20 @@ func Test_GivenAnInvalidQuantity_WhenAddItemToCart_ThenReturnError(t *testing.T)
 }
 
 func Test_GivenANonExistantProduct_WhenAddItemToCart_ThenReturnError(t *testing.T) {
-	vaughnVernon, _ := customer.NewCustomer("Vaughn Vernon")
-	vaughnVernonsCart, _ := cart.NewCart(vaughnVernon)
+	vaughnVernon, _ := domain.NewCustomer("Vaughn Vernon")
+	vaughnVernonsCart, _ := domain.NewCart(vaughnVernon)
 
 	productRepository := &productRepositoryMock{
-		findByID: func(productId uuid.UUID) (*product.Product, error) {
+		findByID: func(productId uuid.UUID) (*domain.Product, error) {
 			return nil, errors.New("product not found")
 		},
 	}
 
 	cartRepository := &cartRepositoryMock{
-		findById: func(cartId uuid.UUID) (*cart.Cart, error) {
+		findById: func(cartId uuid.UUID) (*domain.Cart, error) {
 			return vaughnVernonsCart, nil
 		},
-		save: func(cart *cart.Cart) error {
+		save: func(cart *domain.Cart) error {
 			return nil
 		},
 	}
@@ -269,19 +267,19 @@ func Test_GivenANonExistantProduct_WhenAddItemToCart_ThenReturnError(t *testing.
 }
 
 func Test_GivenANonExistantCart_WhenAddItemToCart_ThenReturnError(t *testing.T) {
-	productVaughnVernonWantsToAdd, _ := product.NewProduct("Implementing Domain Driven Design Book", 50.00)
+	productVaughnVernonWantsToAdd, _ := domain.NewProduct("Implementing Domain Driven Design Book", 50.00)
 
 	productRepository := &productRepositoryMock{
-		findByID: func(productId uuid.UUID) (*product.Product, error) {
+		findByID: func(productId uuid.UUID) (*domain.Product, error) {
 			return productVaughnVernonWantsToAdd, nil
 		},
 	}
 
 	cartRepository := &cartRepositoryMock{
-		findById: func(cartId uuid.UUID) (*cart.Cart, error) {
+		findById: func(cartId uuid.UUID) (*domain.Cart, error) {
 			return nil, errors.New("cart not found")
 		},
-		save: func(cart *cart.Cart) error {
+		save: func(cart *domain.Cart) error {
 			return nil
 		},
 	}
@@ -303,21 +301,21 @@ func Test_GivenANonExistantCart_WhenAddItemToCart_ThenReturnError(t *testing.T) 
 }
 
 func Test_GivenCartRepositoryFailsToSave_WhenAddItemToCart_ThenReturnError(t *testing.T) {
-	vaughnVernon, _ := customer.NewCustomer("Vaughn Vernon")
-	vaughnVernonsCart, _ := cart.NewCart(vaughnVernon)
-	productVaughnVernonWantsToAdd, _ := product.NewProduct("Implementing Domain Driven Design Book", 50.00)
+	vaughnVernon, _ := domain.NewCustomer("Vaughn Vernon")
+	vaughnVernonsCart, _ := domain.NewCart(vaughnVernon)
+	productVaughnVernonWantsToAdd, _ := domain.NewProduct("Implementing Domain Driven Design Book", 50.00)
 
 	productRepository := &productRepositoryMock{
-		findByID: func(productId uuid.UUID) (*product.Product, error) {
+		findByID: func(productId uuid.UUID) (*domain.Product, error) {
 			return productVaughnVernonWantsToAdd, nil
 		},
 	}
 
 	cartRepository := &cartRepositoryMock{
-		findById: func(cartId uuid.UUID) (*cart.Cart, error) {
+		findById: func(cartId uuid.UUID) (*domain.Cart, error) {
 			return vaughnVernonsCart, nil
 		},
-		save: func(cart *cart.Cart) error {
+		save: func(cart *domain.Cart) error {
 			return errors.New("failed to save cart")
 		},
 	}

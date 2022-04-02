@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	application "github.com/bitlogic/go-startup/src/application/customer"
-	"github.com/bitlogic/go-startup/src/domain/customer"
+	"github.com/bitlogic/go-startup/src/application"
+	"github.com/bitlogic/go-startup/src/domain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,7 +27,7 @@ func Test_GivenACustomerRepository_WhenNewCustomerService_ThenReturnACustomerSer
 
 func Test_GivenAValidCreateCustomerCommand_WhenCreateNewCustomer_ThenReturnACustomerDto(t *testing.T) {
 	repository := &customerRepositoryMock{
-		save: func(customer *customer.Customer) error {
+		save: func(customer *domain.Customer) error {
 			return nil
 		},
 	}
@@ -48,7 +48,7 @@ func Test_GivenAValidCreateCustomerCommand_WhenCreateNewCustomer_ThenReturnACust
 
 func Test_GivenACreateCustomerCommandWithInvalidName_WhenCreateNewCustomer_ThenReturnError(t *testing.T) {
 	repository := &customerRepositoryMock{
-		save: func(customer *customer.Customer) error {
+		save: func(customer *domain.Customer) error {
 			return nil
 		},
 	}
@@ -68,7 +68,7 @@ func Test_GivenACreateCustomerCommandWithInvalidName_WhenCreateNewCustomer_ThenR
 
 func Test_GivenRepositoryFailsToSaveNewCustomer_WhenCreateNewCustomer_ThenReturnError(t *testing.T) {
 	repository := &customerRepositoryMock{
-		save: func(customer *customer.Customer) error {
+		save: func(customer *domain.Customer) error {
 			return errors.New("failed to save entity")
 		},
 	}

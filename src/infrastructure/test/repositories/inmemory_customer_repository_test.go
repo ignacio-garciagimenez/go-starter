@@ -3,7 +3,7 @@ package repositories
 import (
 	"testing"
 
-	"github.com/bitlogic/go-startup/src/domain/customer"
+	"github.com/bitlogic/go-startup/src/domain"
 	"github.com/bitlogic/go-startup/src/infrastructure/repositories"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -18,7 +18,7 @@ func Test_GivenNothing_WhenNewInMemoryCustomerRepository_ThenReturnACustomerRepo
 
 func Test_GivenACustomerRepository_WhenSave_ThenSaves(t *testing.T) {
 	repo := repositories.NewInMemoryCustomerRepository()
-	customerToSave, _ := customer.NewCustomer("John Mayer")
+	customerToSave, _ := domain.NewCustomer("John Mayer")
 
 	repo.Save(customerToSave)
 	customerSaved, err := repo.FindByID(customerToSave.GetID())
@@ -30,7 +30,7 @@ func Test_GivenACustomerRepository_WhenSave_ThenSaves(t *testing.T) {
 
 func Test_GivenACustomerRepositoryWithOneItem_WhenFinByIDWithUnexistingID_ThenReturnsError(t *testing.T) {
 	repo := repositories.NewInMemoryCustomerRepository()
-	customerToSave, _ := customer.NewCustomer("John Mayer")
+	customerToSave, _ := domain.NewCustomer("John Mayer")
 	repo.Save(customerToSave)
 
 	customerSaved, err := repo.FindByID(uuid.New())

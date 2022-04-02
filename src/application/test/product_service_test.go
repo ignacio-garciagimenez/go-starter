@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	application "github.com/bitlogic/go-startup/src/application/product"
-	"github.com/bitlogic/go-startup/src/domain/product"
+	"github.com/bitlogic/go-startup/src/application"
+	"github.com/bitlogic/go-startup/src/domain"
 	"github.com/bitlogic/go-startup/src/infrastructure/repositories"
 	"github.com/stretchr/testify/assert"
 )
@@ -30,7 +30,7 @@ func Test_GivenAProductRepository_WhenNewProductService_ThenReturnAProductServic
 
 func Test_GivenAWellFormedCreateProductCommand_WhenCreateNewProduct_ThenReturnANewProductDto(t *testing.T) {
 	repositoryMock := &productRepositoryMock{
-		save: func(product *product.Product) error {
+		save: func(product *domain.Product) error {
 			return nil
 		},
 	}
@@ -54,7 +54,7 @@ func Test_GivenAWellFormedCreateProductCommand_WhenCreateNewProduct_ThenReturnAN
 
 func Test_GivenACreateProductCommandWithInvalidName_WhenCreateNewProduct_ThenReturnError(t *testing.T) {
 	repositoryMock := &productRepositoryMock{
-		save: func(product *product.Product) error {
+		save: func(product *domain.Product) error {
 			return nil
 		},
 	}
@@ -75,7 +75,7 @@ func Test_GivenACreateProductCommandWithInvalidName_WhenCreateNewProduct_ThenRet
 
 func Test_GivenACreateProductCommandWithInvalidPrice_WhenCreateNewProduct_ThenReturnError(t *testing.T) {
 	repositoryMock := &productRepositoryMock{
-		save: func(product *product.Product) error {
+		save: func(product *domain.Product) error {
 			return nil
 		},
 	}
@@ -96,7 +96,7 @@ func Test_GivenACreateProductCommandWithInvalidPrice_WhenCreateNewProduct_ThenRe
 
 func Test_GivenSavingProductFails_WhenCreateNewProduct_ThenReturnError(t *testing.T) {
 	repositoryMock := &productRepositoryMock{
-		save: func(product *product.Product) error {
+		save: func(product *domain.Product) error {
 			return errors.New("failed to save entity")
 		},
 	}

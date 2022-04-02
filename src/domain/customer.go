@@ -1,21 +1,15 @@
-package customer
+package domain
 
 import (
 	"errors"
 	"strings"
 
-	"github.com/bitlogic/go-startup/src/domain"
 	"github.com/google/uuid"
 )
 
 type Customer struct {
-	domain.Entity[uuid.UUID]
-	id   uuid.UUID
+	*baseEntity[uuid.UUID]
 	name string
-}
-
-func (c Customer) GetID() uuid.UUID {
-	return c.id
 }
 
 func (c Customer) GetName() string {
@@ -29,7 +23,9 @@ func NewCustomer(name string) (*Customer, error) {
 	}
 
 	return &Customer{
-		id:   uuid.New(),
+		baseEntity: &baseEntity[uuid.UUID]{
+			id: uuid.New(),
+		},
 		name: trimmedName,
 	}, nil
 }

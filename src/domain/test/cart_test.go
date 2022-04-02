@@ -1,15 +1,14 @@
 package test
 
 import (
-	"github.com/bitlogic/go-startup/src/domain/cart"
-	"github.com/bitlogic/go-startup/src/domain/customer"
-	"github.com/bitlogic/go-startup/src/domain/product"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/bitlogic/go-startup/src/domain"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_GivenNoCustomer_WhenNewCart_ThenReturnError(t *testing.T) {
-	cart, err := cart.NewCart(nil)
+	cart, err := domain.NewCart(nil)
 
 	assert.Error(t, err, "err should not be nil")
 	assert.Equal(t, "no customer provided", err.Error())
@@ -17,8 +16,8 @@ func Test_GivenNoCustomer_WhenNewCart_ThenReturnError(t *testing.T) {
 }
 
 func Test_GivenACustomer_WhenNewCart_ThenReturnNewCart(t *testing.T) {
-	cartCustomer, _ := customer.NewCustomer("John Mayer")
-	cart, err := cart.NewCart(cartCustomer)
+	cartCustomer, _ := domain.NewCustomer("John Mayer")
+	cart, err := domain.NewCart(cartCustomer)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, cart)
@@ -26,8 +25,8 @@ func Test_GivenACustomer_WhenNewCart_ThenReturnNewCart(t *testing.T) {
 }
 
 func Test_GivenAnEmptyCart_WhenSize_ThenReturnZero(t *testing.T) {
-	cartCustomer, _ := customer.NewCustomer("John Mayer")
-	cart, _ := cart.NewCart(cartCustomer)
+	cartCustomer, _ := domain.NewCustomer("John Mayer")
+	cart, _ := domain.NewCart(cartCustomer)
 
 	cartSize := cart.Size()
 
@@ -35,8 +34,8 @@ func Test_GivenAnEmptyCart_WhenSize_ThenReturnZero(t *testing.T) {
 }
 
 func Test_GivenANilProduct_WhenAddProductToCart_ThenReturnError(t *testing.T) {
-	cartCustomer, _ := customer.NewCustomer("John Mayer")
-	cart, _ := cart.NewCart(cartCustomer)
+	cartCustomer, _ := domain.NewCustomer("John Mayer")
+	cart, _ := domain.NewCart(cartCustomer)
 
 	cartItem, err := cart.AddItem(nil, 1)
 
@@ -46,10 +45,10 @@ func Test_GivenANilProduct_WhenAddProductToCart_ThenReturnError(t *testing.T) {
 }
 
 func Test_GivenAValidProduct_WhenAddProductToCart_ThenReturnAnItem(t *testing.T) {
-	cartCustomer, _ := customer.NewCustomer("John Mayer")
-	cart, _ := cart.NewCart(cartCustomer)
+	cartCustomer, _ := domain.NewCustomer("John Mayer")
+	cart, _ := domain.NewCart(cartCustomer)
 
-	productToAdd, _ := product.NewProduct("Arroz Blanco Gallo", 8.00)
+	productToAdd, _ := domain.NewProduct("Arroz Blanco Gallo", 8.00)
 
 	cartItem, err := cart.AddItem(productToAdd, 1)
 
@@ -59,10 +58,10 @@ func Test_GivenAValidProduct_WhenAddProductToCart_ThenReturnAnItem(t *testing.T)
 }
 
 func Test_GivenAnInvalidQuantity_WhenAddProductToCart_ThenReturnError(t *testing.T) {
-	cartCustomer, _ := customer.NewCustomer("John Mayer")
-	cart, _ := cart.NewCart(cartCustomer)
+	cartCustomer, _ := domain.NewCustomer("John Mayer")
+	cart, _ := domain.NewCart(cartCustomer)
 
-	productToAdd, _ := product.NewProduct("Arroz Blanco Gallo", 8.00)
+	productToAdd, _ := domain.NewProduct("Arroz Blanco Gallo", 8.00)
 
 	cartItem, err := cart.AddItem(productToAdd, 0)
 
@@ -73,9 +72,9 @@ func Test_GivenAnInvalidQuantity_WhenAddProductToCart_ThenReturnError(t *testing
 }
 
 func Test_GivenACartWithAnItem_WhenAddTheSameItemToCart_ThenUpdateQuantity(t *testing.T) {
-	cartCustomer, _ := customer.NewCustomer("John Mayer")
-	cart, _ := cart.NewCart(cartCustomer)
-	productToAdd, _ := product.NewProduct("Arroz Blanco Gallo", 8.00)
+	cartCustomer, _ := domain.NewCustomer("John Mayer")
+	cart, _ := domain.NewCart(cartCustomer)
+	productToAdd, _ := domain.NewProduct("Arroz Blanco Gallo", 8.00)
 	cart.AddItem(productToAdd, 1)
 
 	cartItem, err := cart.AddItem(productToAdd, 2)
@@ -86,8 +85,8 @@ func Test_GivenACartWithAnItem_WhenAddTheSameItemToCart_ThenUpdateQuantity(t *te
 }
 
 func Test_GivenAnEmptyCart_WhenGetTotal_ThenReturnZero(t *testing.T) {
-	cartCustomer, _ := customer.NewCustomer("John Mayer")
-	cart, _ := cart.NewCart(cartCustomer)
+	cartCustomer, _ := domain.NewCustomer("John Mayer")
+	cart, _ := domain.NewCart(cartCustomer)
 
 	price := cart.GetTotal()
 
@@ -95,11 +94,11 @@ func Test_GivenAnEmptyCart_WhenGetTotal_ThenReturnZero(t *testing.T) {
 }
 
 func Test_GivenANonEmptyCart_WhenGetTotal_ThenReturnCorrectTotal(t *testing.T) {
-	cartCustomer, _ := customer.NewCustomer("John Mayer")
-	productToAdd, _ := product.NewProduct("Arroz Blanco Gallo", 8.10)
-	anotherProductToAdd, _ := product.NewProduct("Pepsi 2.5Lt", 12.00)
+	cartCustomer, _ := domain.NewCustomer("John Mayer")
+	productToAdd, _ := domain.NewProduct("Arroz Blanco Gallo", 8.10)
+	anotherProductToAdd, _ := domain.NewProduct("Pepsi 2.5Lt", 12.00)
 
-	cart, _ := cart.NewCart(cartCustomer)
+	cart, _ := domain.NewCart(cartCustomer)
 	cart.AddItem(productToAdd, 1)
 	cart.AddItem(productToAdd, 2)
 	cart.AddItem(anotherProductToAdd, 2)

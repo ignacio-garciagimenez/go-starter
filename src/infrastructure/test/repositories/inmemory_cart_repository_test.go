@@ -3,9 +3,7 @@ package repositories
 import (
 	"testing"
 
-	"github.com/bitlogic/go-startup/src/domain/cart"
-	"github.com/bitlogic/go-startup/src/domain/customer"
-	"github.com/bitlogic/go-startup/src/domain/product"
+	"github.com/bitlogic/go-startup/src/domain"
 	"github.com/bitlogic/go-startup/src/infrastructure/repositories"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -20,9 +18,9 @@ func Test_GivenNothing_WhenNewInMemoryCartRepository_ThenReturnACartRepository(t
 
 func Test_GivenACartRepository_WhenSave_ThenSaves(t *testing.T) {
 	repo := repositories.NewInMemoryCartRepository()
-	aCustomer, _ := customer.NewCustomer("John Mayer")
-	aProduct, _ := product.NewProduct("Arroz con leche", 10.00)
-	cartToSave, _ := cart.NewCart(aCustomer)
+	aCustomer, _ := domain.NewCustomer("John Mayer")
+	aProduct, _ := domain.NewProduct("Arroz con leche", 10.00)
+	cartToSave, _ := domain.NewCart(aCustomer)
 	cartToSave.AddItem(aProduct, 1)
 
 	repo.Save(cartToSave)
@@ -36,9 +34,9 @@ func Test_GivenACartRepository_WhenSave_ThenSaves(t *testing.T) {
 
 func Test_GivenACartRepository_WhenGetByCustomer_ThenReturnsTheCustomersCart(t *testing.T) {
 	repo := repositories.NewInMemoryCartRepository()
-	aCustomer, _ := customer.NewCustomer("John Mayer")
-	aProduct, _ := product.NewProduct("Arroz con leche", 10.00)
-	cartToSave, _ := cart.NewCart(aCustomer)
+	aCustomer, _ := domain.NewCustomer("John Mayer")
+	aProduct, _ := domain.NewProduct("Arroz con leche", 10.00)
+	cartToSave, _ := domain.NewCart(aCustomer)
 	cartToSave.AddItem(aProduct, 1)
 
 	repo.Save(cartToSave)
@@ -52,9 +50,9 @@ func Test_GivenACartRepository_WhenGetByCustomer_ThenReturnsTheCustomersCart(t *
 
 func Test_GivenACartRepositoryWithOneCart_WhenFindByIDWithUnexistingID_ThenReturnsError(t *testing.T) {
 	repo := repositories.NewInMemoryCartRepository()
-	aCustomer, _ := customer.NewCustomer("John Mayer")
-	aProduct, _ := product.NewProduct("Arroz con leche", 10.00)
-	cartToSave, _ := cart.NewCart(aCustomer)
+	aCustomer, _ := domain.NewCustomer("John Mayer")
+	aProduct, _ := domain.NewProduct("Arroz con leche", 10.00)
+	cartToSave, _ := domain.NewCart(aCustomer)
 	cartToSave.AddItem(aProduct, 1)
 
 	repo.Save(cartToSave)

@@ -1,21 +1,43 @@
 package domain
 
-import (
-	"github.com/google/uuid"
-	"golang.org/x/exp/constraints"
-)
-
-type Entity[K EntityKey] interface {
-	GetID() K
-}
-
 type ValueObject interface{}
+type DomainEvent interface{}
 
-type EntityKey interface {
-	constraints.Ordered | uuid.UUID
-}
-
-type Repository[K EntityKey, E Entity[K]] interface {
+type Repository[K comparable, E Entity[K]] interface {
 	FindByID(key K) (E, error)
 	Save(entity E) error
+}
+
+type Entity[K comparable] interface {
+	GetID() K
+	addDomainEvent(DomainEvent)
+	GetDomainEvents() []DomainEvent
+	ClearDomainEvents()
+}
+
+type baseEntity[K comparable] struct {
+	id           K
+	domainEvents []DomainEvent
+}
+
+func (e baseEntity[K]) GetID() K {
+	return e.id
+}
+
+func (e baseEntity[K]) EqualsTo(other Entity[K]) bool {
+	return e.id == other.GetID()
+}
+
+func (e *baseEntity[K]) addDomainEvent(event DomainEvent) {
+	e.domainEvents = append(e.domainEvents, event)
+}
+
+func (e baseEntity[K]) GetDomainEvents() []DomainEvent {
+	var output []DomainEvent
+	copy(output, e.domainEvents)
+	return output
+}
+
+func (e *baseEntity[K]) ClearDomainEvents() {
+	e.domainEvents = []DomainEvent{}
 }

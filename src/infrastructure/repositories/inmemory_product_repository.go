@@ -1,18 +1,18 @@
 package repositories
 
 import (
-	"github.com/bitlogic/go-startup/src/domain/product"
+	"github.com/bitlogic/go-startup/src/domain"
 	"github.com/google/uuid"
 )
 
 type InMemoryProductRepository struct {
-	*inMemoryBaseRepository[uuid.UUID, *product.Product]
+	*inMemoryBaseRepository[uuid.UUID, *domain.Product]
 }
 
-func NewInMemoryProductRepository() product.Repository {
+func NewInMemoryProductRepository() domain.ProductRepository {
 	return &InMemoryProductRepository{
-		inMemoryBaseRepository: &inMemoryBaseRepository[uuid.UUID, *product.Product]{
-			entities: map[uuid.UUID]*product.Product{},
+		inMemoryBaseRepository: &inMemoryBaseRepository[uuid.UUID, *domain.Product]{
+			entities: map[uuid.UUID]*domain.Product{},
 		},
 	}
 }

@@ -6,7 +6,6 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/labstack/echo/v4 v4.7.2
 	github.com/stretchr/testify v1.7.1
-	golang.org/x/exp v0.0.0-20220328175248-053ad81199eb
 )
 
 require (

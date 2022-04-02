@@ -1,35 +1,33 @@
-package cart
+package domain
 
 import (
 	"errors"
 
-	"github.com/bitlogic/go-startup/src/domain"
-	"github.com/bitlogic/go-startup/src/domain/customer"
-	"github.com/bitlogic/go-startup/src/domain/product"
 	"github.com/google/uuid"
 )
 
 type Cart struct {
-	domain.Entity[uuid.UUID]
-	id         uuid.UUID
+	*baseEntity[uuid.UUID]
 	customerId uuid.UUID
 	items      map[uuid.UUID]item
 }
 
 type item struct {
-	domain.ValueObject
+	ValueObject
 	productId uuid.UUID
 	price     float64
 	quantity  int
 }
 
-func NewCart(customer *customer.Customer) (*Cart, error) {
+func NewCart(customer *Customer) (*Cart, error) {
 	if customer == nil {
 		return nil, errors.New("no customer provided")
 	}
 
 	return &Cart{
-		id:         uuid.New(),
+		baseEntity: &baseEntity[uuid.UUID]{
+			id: uuid.New(),
+		},
 		customerId: customer.GetID(),
 		items:      map[uuid.UUID]item{},
 	}, nil
@@ -44,7 +42,7 @@ func (c Cart) Size() int {
 	return cartSize
 }
 
-func (c *Cart) AddItem(product *product.Product, quantity int) (item, error) {
+func (c *Cart) AddItem(product *Product, quantity int) (item, error) {
 	if product == nil {
 		return item{}, errors.New("invalid product")
 	}
@@ -70,7 +68,7 @@ func (c Cart) findItem(productId uuid.UUID) (item, error) {
 	return cartItem, nil
 }
 
-func (c *Cart) addNewItem(product *product.Product, quantity int) item {
+func (c *Cart) addNewItem(product *Product, quantity int) item {
 	item := newItem(product, quantity)
 
 	c.items[product.GetID()] = item
@@ -93,10 +91,6 @@ func (c Cart) GetTotal() float64 {
 	return total
 }
 
-func (c Cart) GetID() uuid.UUID {
-	return c.id
-}
-
 func (c Cart) GetCustomerID() uuid.UUID {
 	return c.customerId
 }
@@ -110,7 +104,7 @@ func (c Cart) GetItems() []item {
 	return output
 }
 
-func newItem(product *product.Product, quantity int) item {
+func newItem(product *Product, quantity int) item {
 	return item{
 		productId: product.GetID(),
 		price:     product.GetPrice(),
