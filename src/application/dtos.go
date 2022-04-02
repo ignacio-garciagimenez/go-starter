@@ -1,28 +1,28 @@
 package application
 
 import (
-	"github.com/bitlogic/go-startup/src/domain"
+	"github.com/google/uuid"
 )
 
 type CartDto struct {
-	Id         domain.CartId
-	CustomerId domain.CustomerId
+	Id         uuid.UUID
+	CustomerId uuid.UUID
 	Items      []ItemDto
 }
 
 type ItemDto struct {
-	ProductId domain.ProductId
+	ProductId uuid.UUID
 	UnitPrice float64
 	Quantity  int
 }
 
 type CustomerDto struct {
-	Id   domain.CustomerId
+	Id   uuid.UUID
 	Name string
 }
 
 type ProductDto struct {
-	Id        domain.ProductId
-	Name      string
-	UnitPrice float64
+	Id        uuid.UUID `json:"id"`
+	Name      string    `json:"name"`
+	UnitPrice float64   `json:"unit_price"`
 }

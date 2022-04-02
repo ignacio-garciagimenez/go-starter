@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/bitlogic/go-startup/src/domain"
+	"github.com/google/uuid"
 )
 
 type CustomerService struct {
@@ -31,7 +32,7 @@ func (s *CustomerService) CreateNewCustomer(command CreateCustomerCommand) (Cust
 	}
 
 	return CustomerDto{
-		Id:   newCustomer.GetID(),
+		Id:   uuid.UUID(newCustomer.GetID()),
 		Name: newCustomer.GetName(),
 	}, nil
 }

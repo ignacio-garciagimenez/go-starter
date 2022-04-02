@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/bitlogic/go-startup/src/domain"
+	"github.com/google/uuid"
 )
 
 type CartService struct {
@@ -77,15 +78,15 @@ func mapCartToDto(cart *domain.Cart) CartDto {
 
 	for _, item := range cart.GetItems() {
 		itemDtos = append(itemDtos, ItemDto{
-			ProductId: item.GetProductId(),
+			ProductId: uuid.UUID(item.GetProductId()),
 			UnitPrice: item.GetUnitPrice(),
 			Quantity:  item.GetQuantity(),
 		})
 	}
 
 	return CartDto{
-		Id:         cart.GetID(),
-		CustomerId: cart.GetCustomerID(),
+		Id:         uuid.UUID(cart.GetID()),
+		CustomerId: uuid.UUID(cart.GetCustomerID()),
 		Items:      itemDtos,
 	}
 }

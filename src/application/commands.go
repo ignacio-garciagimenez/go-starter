@@ -19,6 +19,6 @@ type CreateCustomerCommand struct {
 }
 
 type CreateProductCommand struct {
-	ProductName string
-	UnitPrice   float64
+	ProductName string  `json:"product_name"`
+	UnitPrice   float64 `json:"unit_price"`
 }

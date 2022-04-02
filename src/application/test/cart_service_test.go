@@ -66,7 +66,7 @@ func Test_GivenAValidCreateCartCommand_WhenCreateNewCart_ThenReturnACreateCartRe
 	assert.Nil(t, err)
 	if assert.NotEmpty(t, result) {
 		assert.NotNil(t, result.Id)
-		assert.Equal(t, savedCustomer.GetID(), result.CustomerId)
+		assert.Equal(t, uuid.UUID(savedCustomer.GetID()), result.CustomerId)
 		assert.Empty(t, result.Items)
 	}
 	assert.Equal(t, 1, customerRepository.callCount)
@@ -183,12 +183,12 @@ func Test_GivenACart_WhenAddItemToCart_ThenTheItemIsAddedToTheCart(t *testing.T)
 
 	assert.Nil(t, err)
 	if assert.NotEmpty(t, result) {
-		assert.Equal(t, vaughnVernonsCart.GetID(), result.Id)
-		assert.Equal(t, vaughnVernonsCart.GetCustomerID(), result.CustomerId)
+		assert.Equal(t, uuid.UUID(vaughnVernonsCart.GetID()), result.Id)
+		assert.Equal(t, uuid.UUID(vaughnVernonsCart.GetCustomerID()), result.CustomerId)
 		if assert.NotEmpty(t, result.Items) {
 			assert.Equal(t, 1, result.Items[0].Quantity)
 			assert.Equal(t, 50.00, result.Items[0].UnitPrice)
-			assert.Equal(t, productVaughnVernonWantsToAdd.GetID(), result.Items[0].ProductId)
+			assert.Equal(t, uuid.UUID(productVaughnVernonWantsToAdd.GetID()), result.Items[0].ProductId)
 		}
 	}
 	assert.Equal(t, 2, cartRepository.callCount)
