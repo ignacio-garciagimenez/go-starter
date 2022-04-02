@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"reflect"
 	"strings"
 
 	"github.com/google/uuid"
@@ -35,4 +36,9 @@ func NewCustomer(name string) (*Customer, error) {
 	})
 
 	return customer, nil
+}
+
+func (c *Customer) EqualsTo(entity Entity[uuid.UUID]) bool {
+	return reflect.TypeOf(c) == reflect.TypeOf(entity) &&
+		c.GetID() == entity.GetID()
 }

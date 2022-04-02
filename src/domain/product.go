@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"reflect"
 
 	"github.com/google/uuid"
 )
@@ -40,4 +41,9 @@ func (p Product) GetName() string {
 
 func (p Product) GetPrice() float64 {
 	return p.unitPrice
+}
+
+func (p *Product) EqualsTo(entity Entity[uuid.UUID]) bool {
+	return reflect.TypeOf(p) == reflect.TypeOf(entity) &&
+		p.GetID() == entity.GetID()
 }

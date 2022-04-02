@@ -13,6 +13,7 @@ type Entity[K comparable] interface {
 	addDomainEvent(DomainEvent)
 	GetDomainEvents() []DomainEvent
 	ClearDomainEvents()
+	EqualsTo(Entity[K]) bool
 }
 
 type baseEntity[K comparable] struct {
@@ -22,10 +23,6 @@ type baseEntity[K comparable] struct {
 
 func (e baseEntity[K]) GetID() K {
 	return e.id
-}
-
-func (e baseEntity[K]) EqualsTo(other Entity[K]) bool {
-	return e.id == other.GetID()
 }
 
 func (e *baseEntity[K]) addDomainEvent(event DomainEvent) {

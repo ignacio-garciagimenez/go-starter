@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"reflect"
 
 	"github.com/google/uuid"
 )
@@ -38,6 +39,10 @@ func NewCart(customer *Customer) (*Cart, error) {
 	})
 
 	return cart, nil
+}
+
+func (c *Cart) EqualsTo(entity Entity[uuid.UUID]) bool {
+	return reflect.TypeOf(c) == reflect.TypeOf(entity) && c.GetID() == entity.GetID()
 }
 
 func (c Cart) Size() int {

@@ -126,3 +126,27 @@ func Test_GivenANonEmptyCart_WhenGetTotal_ThenReturnCorrectTotal(t *testing.T) {
 	assert.Equal(t, 48.30, total)
 	assert.Empty(t, cart.GetDomainEvents())
 }
+
+func Test_GivenACart_WhenEqualsToItself_ThenReturnsTrue(t *testing.T) {
+	cartCustomer, _ := domain.NewCustomer("John Mayer")
+	cart, _ := domain.NewCart(cartCustomer)
+
+	assert.True(t, cart.EqualsTo(cart))
+}
+
+func Test_GivenACart_WhenEqualsToAnotherCart_ThenReturnsFalse(t *testing.T) {
+	cartCustomer, _ := domain.NewCustomer("John Mayer")
+	cart, _ := domain.NewCart(cartCustomer)
+	cart2, _ := domain.NewCart(cartCustomer)
+
+	assert.False(t, cart.EqualsTo(cart2))
+}
+
+func Test_GivenACart_WhenEqualsToAnotherTypeOfEntity_ThenReturnsFalse(t *testing.T) {
+	cartCustomer, _ := domain.NewCustomer("John Mayer")
+	product, _ := domain.NewProduct("Pepsi Ligh", 10.00)
+	cart, _ := domain.NewCart(cartCustomer)
+
+	assert.False(t, cart.EqualsTo(cartCustomer))
+	assert.False(t, cart.EqualsTo(product))
+}

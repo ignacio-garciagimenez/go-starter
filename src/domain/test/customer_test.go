@@ -41,3 +41,23 @@ func Test_GivenAValidName_WhenNewCustomer_ThenReturnANonEmptyCustomer(t *testing
 		assert.Equal(t, 1, len(customer.GetDomainEvents()))
 	}
 }
+
+func Test_GivenACustomer_WhenEqualsToItself_ThenReturnsTrue(t *testing.T) {
+	customer, _ := domain.NewCustomer("John Mayer")
+
+	assert.True(t, customer.EqualsTo(customer))
+}
+
+func Test_GivenACustomer_WhenEqualsToAnotherCustomer_ThenReturnsFalse(t *testing.T) {
+	customer, _ := domain.NewCustomer("John Mayer")
+	customer2, _ := domain.NewCustomer("John Mayer")
+
+	assert.False(t, customer.EqualsTo(customer2))
+}
+
+func Test_GivenACustomer_WhenEqualsToAnotherTypeOfEntity_ThenReturnsFalse(t *testing.T) {
+	customer, _ := domain.NewCustomer("John Mayer")
+	product, _ := domain.NewProduct("Pepsi Ligh", 10.00)
+
+	assert.False(t, customer.EqualsTo(product))
+}

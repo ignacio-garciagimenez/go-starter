@@ -40,3 +40,23 @@ func Test_GivenValidParameters_WhenNewProduct_ThenReturnAProduct(t *testing.T) {
 		assert.Equal(t, 1, len(product.GetDomainEvents()))
 	}
 }
+
+func Test_GivenAProduct_WhenEqualsToItself_ThenReturnsTrue(t *testing.T) {
+	product, _ := domain.NewProduct("Pepsi Ligh", 10.00)
+
+	assert.True(t, product.EqualsTo(product))
+}
+
+func Test_GivenAProduct_WhenEqualsToAnotherProduct_ThenReturnsFalse(t *testing.T) {
+	product, _ := domain.NewProduct("Pepsi Ligh", 10.00)
+	product2, _ := domain.NewProduct("Pepsi Ligh", 10.00)
+
+	assert.False(t, product.EqualsTo(product2))
+}
+
+func Test_GivenAProduct_WhenEqualsToAnotherTypeOfEntity_ThenReturnsFalse(t *testing.T) {
+	customer, _ := domain.NewCustomer("John Mayer")
+	product, _ := domain.NewProduct("Pepsi Ligh", 10.00)
+
+	assert.False(t, product.EqualsTo(customer))
+}
