@@ -6,7 +6,6 @@ import (
 
 	application "github.com/bitlogic/go-startup/src/application/customer"
 	"github.com/bitlogic/go-startup/src/domain/customer"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -85,20 +84,4 @@ func Test_GivenRepositoryFailsToSaveNewCustomer_WhenCreateNewCustomer_ThenReturn
 		assert.Equal(t, "failed to save entity", err.Error())
 	}
 	assert.Equal(t, 1, repository.callCount)
-}
-
-type customerRepositoryMock struct {
-	callCount int
-	findById  func(uuid.UUID) (*customer.Customer, error)
-	save      func(*customer.Customer) error
-}
-
-func (r *customerRepositoryMock) FindByID(customerId uuid.UUID) (*customer.Customer, error) {
-	r.callCount++
-	return r.findById(customerId)
-}
-
-func (r *customerRepositoryMock) Save(customer *customer.Customer) error {
-	r.callCount++
-	return r.save(customer)
 }

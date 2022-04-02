@@ -7,7 +7,6 @@ import (
 	application "github.com/bitlogic/go-startup/src/application/product"
 	"github.com/bitlogic/go-startup/src/domain/product"
 	"github.com/bitlogic/go-startup/src/infrastructure/repositories"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -114,20 +113,4 @@ func Test_GivenSavingProductFails_WhenCreateNewProduct_ThenReturnError(t *testin
 	}
 	assert.Empty(t, output)
 	assert.Equal(t, 1, repositoryMock.callCount)
-}
-
-type productRepositoryMock struct {
-	callCount int
-	findByID  func(uuid.UUID) (*product.Product, error)
-	save      func(*product.Product) error
-}
-
-func (m *productRepositoryMock) FindByID(productId uuid.UUID) (*product.Product, error) {
-	m.callCount++
-	return m.findByID(productId)
-}
-
-func (m *productRepositoryMock) Save(newProduct *product.Product) error {
-	m.callCount++
-	return m.save(newProduct)
 }
