@@ -45,31 +45,130 @@ func Test_GivenANewProductRequest_WhenCreateNewProduct_ThenReturn201AndANewProdu
 
 	e := echo.New()
 	e.Validator = controllers.NewRequestValidator()
-	request := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(`{"product_name":"Pepsi Light 2.5Lt","unit_price":10.00}`))
+	request := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(`{"product_name":"Pepsi Light 2.5Lt","unit_price":0.01}`))
 	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(request, rec)
 
 	if assert.NoError(t, controller.CreateNewProduct(c)) {
 		assert.Equal(t, http.StatusCreated, rec.Code)
-		assert.Equal(t, fmt.Sprintf("{\"id\":\"%s\",\"name\":\"Pepsi Light 2.5Lt\",\"unit_price\":10.00}\n", newProductId.String()), rec.Body.String())
+		assert.Equal(t, fmt.Sprintf("{\"id\":\"%s\",\"name\":\"Pepsi Light 2.5Lt\",\"unit_price\":0.01}\n", newProductId.String()), rec.Body.String())
 	}
 }
 
-func Test_GivenANewProductRequesTWithInvalidPrice_WhenCreateNewProduct_ThenReturn400Error(t *testing.T) {
+func Test_GivenANewProductRequestWithNoPrice_WhenCreateNewProduct_ThenReturn400Error(t *testing.T) {
 	controller, _ := controllers.NewProductController(&productServiceMock{})
 
 	e := echo.New()
 	e.Validator = controllers.NewRequestValidator()
-	//e.HTTPErrorHandler = controllers.CustomValidationErrorHanlder(e.DefaultHTTPErrorHandler)
-	request := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(`{"product_name":"Pepsi Light 2.5Lt","unit_price":0}`))
+	request := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(`{"product_name":"Pepsi Light 2.5Lt"}`))
 	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(request, rec)
 
-	if assert.Error(t, controller.CreateNewProduct(c)) {
-		assert.Equal(t, http.StatusBadRequest, rec.Code)
-		assert.Equal(t, `{"validation_errors":[{"field":"unit_price","errors":["price should be greater than 0.00"]}]}`, rec.Body.String())
+	err := controller.CreateNewProduct(c)
+	if assert.Error(t, err) {
+		err := err.(*echo.HTTPError)
+		assert.Equal(t, http.StatusBadRequest, err.Code)
+		assert.Equal(t, &controllers.ValidationErrorsResponse{
+			Message: "there were validation errors",
+			Errors: []controllers.FieldError{
+				{
+					Field: "UnitPrice",
+					Error: "UnitPrice is a required field",
+				},
+			},
+		}, err.Message)
+	}
+}
+
+func Test_GivenANewProductRequestWithInvalidPriceAndInvalidName_WhenCreateNewProduct_ThenReturn400Error(t *testing.T) {
+	controller, _ := controllers.NewProductController(&productServiceMock{})
+
+	e := echo.New()
+	e.Validator = controllers.NewRequestValidator()
+	request := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(`{"product_name":"Pepsi","unit_price":0}`))
+	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+
+	err := controller.CreateNewProduct(c)
+	if assert.Error(t, err) {
+		err := err.(*echo.HTTPError)
+		assert.Equal(t, http.StatusBadRequest, err.Code)
+		assert.Equal(t, &controllers.ValidationErrorsResponse{
+			Message: "there were validation errors",
+			Errors: []controllers.FieldError{
+				{
+					Field: "ProductName",
+					Error: "ProductName must be at least 10 characters in length",
+				},
+				{
+					Field: "UnitPrice",
+					Error: "UnitPrice is a required field",
+				},
+			},
+		}, err.Message)
+	}
+}
+
+func Test_GivenANewProductRequestWithInvalidPriceAndNoName_WhenCreateNewProduct_ThenReturn400Error(t *testing.T) {
+	controller, _ := controllers.NewProductController(&productServiceMock{})
+
+	e := echo.New()
+	e.Validator = controllers.NewRequestValidator()
+	request := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(`{"unit_price":0}`))
+	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+
+	err := controller.CreateNewProduct(c)
+	if assert.Error(t, err) {
+		err := err.(*echo.HTTPError)
+		assert.Equal(t, http.StatusBadRequest, err.Code)
+		assert.Equal(t, &controllers.ValidationErrorsResponse{
+			Message: "there were validation errors",
+			Errors: []controllers.FieldError{
+				{
+					Field: "ProductName",
+					Error: "ProductName is a required field",
+				},
+				{
+					Field: "UnitPrice",
+					Error: "UnitPrice is a required field",
+				},
+			},
+		}, err.Message)
+	}
+}
+
+func Test_GivenANewProductRequestWithNegativePriceAndNoName_WhenCreateNewProduct_ThenReturn400Error(t *testing.T) {
+	controller, _ := controllers.NewProductController(&productServiceMock{})
+
+	e := echo.New()
+	e.Validator = controllers.NewRequestValidator()
+	request := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(`{"unit_price":-1}`))
+	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+
+	err := controller.CreateNewProduct(c)
+	if assert.Error(t, err) {
+		err := err.(*echo.HTTPError)
+		assert.Equal(t, http.StatusBadRequest, err.Code)
+		assert.Equal(t, &controllers.ValidationErrorsResponse{
+			Message: "there were validation errors",
+			Errors: []controllers.FieldError{
+				{
+					Field: "ProductName",
+					Error: "ProductName is a required field",
+				},
+				{
+					Field: "UnitPrice",
+					Error: "UnitPrice must be greater than 0",
+				},
+			},
+		}, err.Message)
 	}
 }
 

@@ -3,58 +3,63 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/go-playground/locales/en"
+	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
+	en_translations "github.com/go-playground/validator/v10/translations/en"
 	"github.com/labstack/echo/v4"
 )
 
-type validationErrorsResponse struct {
+type ValidationErrorsResponse struct {
 	Message string       `json:"message"`
-	Errors  []fieldError `json:"validation_errors"`
+	Errors  []FieldError `json:"validation_errors"`
 }
 
-type fieldError struct {
+type FieldError struct {
 	Field string `json:"field"`
 	Error string `json:"error"`
 }
 
 type requestValidator struct {
 	validator *validator.Validate
+	trans     ut.Translator
 }
 
 func NewRequestValidator() *requestValidator {
-	return &requestValidator{validator.New()}
+	trans := newTranslator()
+	validator := validator.New()
+	en_translations.RegisterDefaultTranslations(validator, trans)
+	return &requestValidator{
+		validator: validator,
+		trans:     trans,
+	}
+}
+
+func newTranslator() ut.Translator {
+	en := en.New()
+	uni := ut.New(en, en)
+	trans, _ := uni.GetTranslator("en")
+	return trans
 }
 
 func (rv *requestValidator) Validate(i interface{}) error {
 	if err := rv.validator.Struct(i); err != nil {
-		//resp := createValidationErrorResponse(err.(validator.ValidationErrors))
+		resp := rv.createValidationErrorResponse(err.(validator.ValidationErrors))
 
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		return echo.NewHTTPError(http.StatusBadRequest, resp)
 	}
 	return nil
 }
 
-func createValidationErrorResponse(validationErrors validator.ValidationErrors) *validationErrorsResponse {
-	errorResponse := &validationErrorsResponse{Message: "there were validation errors"}
+func (rv *requestValidator) createValidationErrorResponse(validationErrors validator.ValidationErrors) *ValidationErrorsResponse {
+	errorResponse := &ValidationErrorsResponse{Message: "there were validation errors"}
 
 	for _, fieldErr := range validationErrors {
-		errorResponse.Errors = append(errorResponse.Errors, fieldError{
+		errorResponse.Errors = append(errorResponse.Errors, FieldError{
 			Field: fieldErr.Field(),
-			Error: fieldErr.Error(),
+			Error: fieldErr.Translate(rv.trans),
 		})
 	}
 
 	return errorResponse
-}
-
-func CustomValidationErrorHanlder(errorHandler echo.HTTPErrorHandler) echo.HTTPErrorHandler {
-	return func(err error, c echo.Context) {
-		if httpError, ok := err.(*echo.HTTPError); ok {
-			if validationError, ok := httpError.Message.(*validationErrorsResponse); ok {
-				c.JSON(httpError.Code, validationError)
-				return
-			}
-		}
-		errorHandler(err, c)
-	}
 }
