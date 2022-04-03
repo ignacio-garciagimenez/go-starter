@@ -37,7 +37,7 @@ func (pc *ProductController) CreateNewProduct(c echo.Context) error {
 
 	productDto, err := pc.service.CreateNewProduct(command)
 	if err != nil {
-		return err
+		return echo.NewHTTPError(500, err.Error())
 	}
 
 	return c.JSON(201, productDto)

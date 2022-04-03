@@ -25,8 +25,8 @@ type ItemDto struct {
 }
 
 type CustomerDto struct {
-	Id   uuid.UUID
-	Name string
+	Id   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
 }
 
 type ProductDto struct {

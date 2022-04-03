@@ -15,7 +15,7 @@ type AddItemToCartCommand struct {
 }
 
 type CreateCustomerCommand struct {
-	CustomerName string
+	CustomerName string `json:"customer_name" validate:"required,gte=8"`
 }
 
 type CreateProductCommand struct {

@@ -1,19 +1,20 @@
-package controllers
+package config
 
 import (
 	"net/http"
 
 	"github.com/bitlogic/go-startup/src/application"
+	"github.com/bitlogic/go-startup/src/infrastructure/controllers"
 	"github.com/bitlogic/go-startup/src/infrastructure/repositories"
 	"github.com/labstack/echo/v4"
 )
 
-var productController *ProductController
+var productController *controllers.ProductController
 
 func init() {
 	productRepository := repositories.NewInMemoryProductRepository()
 	service, _ := application.NewProductService(productRepository)
-	controller, _ := NewProductController(service)
+	controller, _ := controllers.NewProductController(service)
 
 	productController = controller
 }
