@@ -31,29 +31,46 @@ func Test_GivenAProductService_WhenNewProductController_ThenReturnController(t *
 
 }
 
-func Test_GivenANewProductRequest_WhenCreateNewProduct_ThenReturnANewProductDto(t *testing.T) {
+func Test_GivenANewProductRequest_WhenCreateNewProduct_ThenReturn201AndANewProductDto(t *testing.T) {
 	newProductId := uuid.New()
 	controller, _ := controllers.NewProductController(&productServiceMock{
 		createNewProduct: func(command application.CreateProductCommand) (application.ProductDto, error) {
 			return application.ProductDto{
 				Id:        newProductId,
 				Name:      command.ProductName,
-				UnitPrice: command.UnitPrice,
+				UnitPrice: application.PriceDto(command.UnitPrice),
 			}, nil
 		},
 	})
 
 	e := echo.New()
-	request := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(`{"product_name":"Pepsi Light 2.5Lt","unit_price":10.10}`))
+	e.Validator = controllers.NewRequestValidator()
+	request := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(`{"product_name":"Pepsi Light 2.5Lt","unit_price":10.00}`))
 	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(request, rec)
 
 	if assert.NoError(t, controller.CreateNewProduct(c)) {
 		assert.Equal(t, http.StatusCreated, rec.Code)
-		assert.Equal(t, fmt.Sprintf(`{"id":"%s","name":"Pepsi Light 2.5Lt","unit_price":11.00}`, newProductId.String()), rec.Body.String())
+		assert.Equal(t, fmt.Sprintf("{\"id\":\"%s\",\"name\":\"Pepsi Light 2.5Lt\",\"unit_price\":10.00}\n", newProductId.String()), rec.Body.String())
 	}
+}
 
+func Test_GivenANewProductRequesTWithInvalidPrice_WhenCreateNewProduct_ThenReturn400Error(t *testing.T) {
+	controller, _ := controllers.NewProductController(&productServiceMock{})
+
+	e := echo.New()
+	e.Validator = controllers.NewRequestValidator()
+	//e.HTTPErrorHandler = controllers.CustomValidationErrorHanlder(e.DefaultHTTPErrorHandler)
+	request := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(`{"product_name":"Pepsi Light 2.5Lt","unit_price":0}`))
+	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+
+	if assert.Error(t, controller.CreateNewProduct(c)) {
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+		assert.Equal(t, `{"validation_errors":[{"field":"unit_price","errors":["price should be greater than 0.00"]}]}`, rec.Body.String())
+	}
 }
 
 type productServiceMock struct {

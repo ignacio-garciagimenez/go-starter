@@ -1,8 +1,16 @@
 package application
 
 import (
+	"strconv"
+
 	"github.com/google/uuid"
 )
+
+type PriceDto float64
+
+func (p PriceDto) MarshalJSON() ([]byte, error) {
+	return []byte(strconv.FormatFloat(float64(p), 'f', 2, 64)), nil
+}
 
 type CartDto struct {
 	Id         uuid.UUID
@@ -12,7 +20,7 @@ type CartDto struct {
 
 type ItemDto struct {
 	ProductId uuid.UUID
-	UnitPrice float64
+	UnitPrice PriceDto
 	Quantity  int
 }
 
@@ -24,5 +32,5 @@ type CustomerDto struct {
 type ProductDto struct {
 	Id        uuid.UUID `json:"id"`
 	Name      string    `json:"name"`
-	UnitPrice float64   `json:"unit_price"`
+	UnitPrice PriceDto  `json:"unit_price"`
 }

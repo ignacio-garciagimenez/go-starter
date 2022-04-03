@@ -20,5 +20,5 @@ type CreateCustomerCommand struct {
 
 type CreateProductCommand struct {
 	ProductName string  `json:"product_name"`
-	UnitPrice   float64 `json:"unit_price"`
+	UnitPrice   float64 `json:"unit_price" validate:"required,gt=0"`
 }

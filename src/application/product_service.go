@@ -34,6 +34,6 @@ func (s *ProductService) CreateNewProduct(command CreateProductCommand) (Product
 	return ProductDto{
 		Id:        uuid.UUID(newProduct.GetID()),
 		Name:      newProduct.GetName(),
-		UnitPrice: newProduct.GetPrice(),
+		UnitPrice: PriceDto(newProduct.GetPrice()),
 	}, nil
 }

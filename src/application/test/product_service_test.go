@@ -46,7 +46,7 @@ func Test_GivenAWellFormedCreateProductCommand_WhenCreateNewProduct_ThenReturnAN
 	if assert.NotEmpty(t, output) {
 		assert.NotNil(t, output.Id)
 		assert.Equal(t, "Pepsi 2.25Lt", output.Name)
-		assert.Equal(t, 10.00, output.UnitPrice)
+		assert.Equal(t, application.PriceDto(10.00), output.UnitPrice)
 	}
 
 	assert.Equal(t, 1, repositoryMock.callCount)

@@ -31,6 +31,10 @@ func (pc *ProductController) CreateNewProduct(c echo.Context) error {
 		return err
 	}
 
+	if err := c.Validate(command); err != nil {
+		return err
+	}
+
 	productDto, err := pc.service.CreateNewProduct(command)
 	if err != nil {
 		return err

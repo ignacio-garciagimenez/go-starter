@@ -7,6 +7,7 @@ import (
 
 func main() {
 	e := echo.New()
+
 	controllers.MapEndpoints(e)
 
 	e.Logger.Fatal(e.Start(":8080"))

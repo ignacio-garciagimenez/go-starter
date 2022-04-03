@@ -187,7 +187,7 @@ func Test_GivenACart_WhenAddItemToCart_ThenTheItemIsAddedToTheCart(t *testing.T)
 		assert.Equal(t, uuid.UUID(vaughnVernonsCart.GetCustomerID()), result.CustomerId)
 		if assert.NotEmpty(t, result.Items) {
 			assert.Equal(t, 1, result.Items[0].Quantity)
-			assert.Equal(t, 50.00, result.Items[0].UnitPrice)
+			assert.Equal(t, application.PriceDto(10.00), result.Items[0].UnitPrice)
 			assert.Equal(t, uuid.UUID(productVaughnVernonWantsToAdd.GetID()), result.Items[0].ProductId)
 		}
 	}

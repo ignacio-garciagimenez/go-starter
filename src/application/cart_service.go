@@ -79,7 +79,7 @@ func mapCartToDto(cart *domain.Cart) CartDto {
 	for _, item := range cart.GetItems() {
 		itemDtos = append(itemDtos, ItemDto{
 			ProductId: uuid.UUID(item.GetProductId()),
-			UnitPrice: item.GetUnitPrice(),
+			UnitPrice: PriceDto(item.GetUnitPrice()),
 			Quantity:  item.GetQuantity(),
 		})
 	}
