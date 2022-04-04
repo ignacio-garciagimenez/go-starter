@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/bitlogic/go-startup/src/application"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -47,6 +48,14 @@ func (cc *CartController) CreateNewCart(c echo.Context) error {
 func (cc *CartController) AddItemToCart(c echo.Context) error {
 	var command application.AddItemToCartCommand
 	if err := c.Bind(&command); err != nil {
+		return err
+	}
+
+	if cartId, err := uuid.Parse(c.Param("cartId")); err == nil {
+		command.CartId = cartId
+	}
+
+	if err := c.Validate(command); err != nil {
 		return err
 	}
 

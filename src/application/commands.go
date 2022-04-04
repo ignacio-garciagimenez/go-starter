@@ -9,9 +9,9 @@ type CreateCartCommand struct {
 }
 
 type AddItemToCartCommand struct {
-	CartId    uuid.UUID `json:"cart_id"`
-	ProductId uuid.UUID `json:"product_id"`
-	Quantity  int       `json:"quantity"`
+	CartId    uuid.UUID `validate:"required"`
+	ProductId uuid.UUID `json:"product_id" validate:"required"`
+	Quantity  int       `json:"quantity" validate:"required,gt=0"`
 }
 
 type CreateCustomerCommand struct {

@@ -224,10 +224,13 @@ func Test_GivenAValidAddItemToCartRequestAndAnExistingEmptyCart_WhenAddItemToCar
 	e := echo.New()
 	e.Validator = config.NewRequestValidator()
 	request := httptest.NewRequest(http.MethodPost, "/carts", strings.NewReader(
-		fmt.Sprintf(`{"cart_id":"%s","product_id":"%s","quantity":2}`, cartId.String(), productId.String())))
+		fmt.Sprintf(`{"product_id":"%s","quantity":2}`, productId.String())))
 	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(request, rec)
+	c.SetPath("/carts/:cartId")
+	c.SetParamNames("cartId")
+	c.SetParamValues(cartId.String())
 
 	if assert.NoError(t, controller.AddItemToCart(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
@@ -267,10 +270,13 @@ func Test_GivenANonExistantCart_WhenAddItemToCart_ThenReturn404(t *testing.T) {
 	e := echo.New()
 	e.Validator = config.NewRequestValidator()
 	request := httptest.NewRequest(http.MethodPost, "/carts", strings.NewReader(
-		fmt.Sprintf(`{"cart_id":"%s","product_id":"%s","quantity":2}`, uuid.New().String(), productId.String())))
+		fmt.Sprintf(`{"product_id":"%s","quantity":2}`, productId.String())))
 	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(request, rec)
+	c.SetPath("/carts/:cartId")
+	c.SetParamNames("cartId")
+	c.SetParamValues(uuid.New().String())
 
 	err := controller.AddItemToCart(c)
 	if assert.Error(t, err) {
@@ -294,10 +300,13 @@ func Test_GivenACartServiceFailsToAddItemToCart_WhenAddItemToCart_ThenReturn500(
 	e := echo.New()
 	e.Validator = config.NewRequestValidator()
 	request := httptest.NewRequest(http.MethodPost, "/carts", strings.NewReader(
-		fmt.Sprintf(`{"cart_id":"%s","product_id":"%s","quantity":2}`, cartId.String(), productId.String())))
+		fmt.Sprintf(`{"product_id":"%s","quantity":2}`, productId.String())))
 	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(request, rec)
+	c.SetPath("/carts/:cartId")
+	c.SetParamNames("cartId")
+	c.SetParamValues(cartId.String())
 
 	err := controller.AddItemToCart(c)
 	if assert.Error(t, err) {
@@ -306,6 +315,297 @@ func Test_GivenACartServiceFailsToAddItemToCart_WhenAddItemToCart_ThenReturn500(
 		assert.Equal(t, "failed to add item to cart", err.Message)
 	}
 	assert.Equal(t, 1, cartServiceMock.callCount)
+}
+
+func Test_GivenANilCartId_WhenAddItemToCart_ThenReturn400(t *testing.T) {
+	productId := uuid.New()
+	cartServiceMock := &cartServiceMock{}
+	controller, _ := controllers.NewCartController(cartServiceMock)
+
+	e := echo.New()
+	e.Validator = config.NewRequestValidator()
+	request := httptest.NewRequest(http.MethodPost, "/carts", strings.NewReader(
+		fmt.Sprintf(`{"product_id":"%s","quantity":2}`, productId.String())))
+	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+	c.SetPath("/carts/:cartId")
+	c.SetParamNames("cartId")
+
+	err := controller.AddItemToCart(c)
+	if assert.Error(t, err) {
+		err := err.(*echo.HTTPError)
+		assert.Equal(t, http.StatusBadRequest, err.Code)
+		assert.Equal(t, &config.ValidationErrorsResponse{
+			Message: "there were validation errors",
+			Errors: []config.FieldError{
+				{
+					Field: "CartId",
+					Error: "CartId is a required field",
+				},
+			},
+		}, err.Message)
+	}
+	assert.Equal(t, 0, cartServiceMock.callCount)
+}
+
+func Test_GivenAnInvalidGuid_WhenAddItemToCart_ThenReturn400(t *testing.T) {
+	productId := uuid.New()
+	cartServiceMock := &cartServiceMock{}
+	controller, _ := controllers.NewCartController(cartServiceMock)
+
+	e := echo.New()
+	e.Validator = config.NewRequestValidator()
+	request := httptest.NewRequest(http.MethodPost, "/carts", strings.NewReader(
+		fmt.Sprintf(`{"product_id":"%s","quantity":2}`, productId.String())))
+	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+	c.SetPath("/carts/:cartId")
+	c.SetParamNames("cartId")
+	c.SetParamValues("1234567890")
+
+	err := controller.AddItemToCart(c)
+	if assert.Error(t, err) {
+		err := err.(*echo.HTTPError)
+		assert.Equal(t, http.StatusBadRequest, err.Code)
+		assert.Equal(t, &config.ValidationErrorsResponse{
+			Message: "there were validation errors",
+			Errors: []config.FieldError{
+				{
+					Field: "CartId",
+					Error: "CartId is a required field",
+				},
+			},
+		}, err.Message)
+	}
+	assert.Equal(t, 0, cartServiceMock.callCount)
+}
+
+func Test_GivenAnInvalidGuidFormat_WhenAddItemToCart_ThenReturn400(t *testing.T) {
+	productId := uuid.New()
+	cartServiceMock := &cartServiceMock{}
+	controller, _ := controllers.NewCartController(cartServiceMock)
+
+	e := echo.New()
+	e.Validator = config.NewRequestValidator()
+	request := httptest.NewRequest(http.MethodPost, "/carts", strings.NewReader(
+		fmt.Sprintf(`{"product_id":"%s","quantity":2}`, productId.String())))
+	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+	c.SetPath("/carts/:cartId")
+	c.SetParamNames("cartId")
+	c.SetParamValues("12W456789012W456789012W456789022")
+
+	err := controller.AddItemToCart(c)
+	if assert.Error(t, err) {
+		err := err.(*echo.HTTPError)
+		assert.Equal(t, http.StatusBadRequest, err.Code)
+		assert.Equal(t, &config.ValidationErrorsResponse{
+			Message: "there were validation errors",
+			Errors: []config.FieldError{
+				{
+					Field: "CartId",
+					Error: "CartId is a required field",
+				},
+			},
+		}, err.Message)
+	}
+	assert.Equal(t, 0, cartServiceMock.callCount)
+}
+
+func Test_GivenAnNilProductId_WhenAddItemToCart_ThenReturn400(t *testing.T) {
+	cartServiceMock := &cartServiceMock{}
+	controller, _ := controllers.NewCartController(cartServiceMock)
+
+	e := echo.New()
+	e.Validator = config.NewRequestValidator()
+	request := httptest.NewRequest(http.MethodPost, "/carts", strings.NewReader(`{"quantity":2}`))
+	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+	c.SetPath("/carts/:cartId")
+	c.SetParamNames("cartId")
+	c.SetParamValues(uuid.New().String())
+
+	err := controller.AddItemToCart(c)
+	if assert.Error(t, err) {
+		err := err.(*echo.HTTPError)
+		assert.Equal(t, http.StatusBadRequest, err.Code)
+		assert.Equal(t, &config.ValidationErrorsResponse{
+			Message: "there were validation errors",
+			Errors: []config.FieldError{
+				{
+					Field: "ProductId",
+					Error: "ProductId is a required field",
+				},
+			},
+		}, err.Message)
+	}
+	assert.Equal(t, 0, cartServiceMock.callCount)
+}
+
+func Test_GivenAnInvalidFormatUUIDForProductId_WhenAddItemToCart_ThenReturn400(t *testing.T) {
+	cartServiceMock := &cartServiceMock{}
+	controller, _ := controllers.NewCartController(cartServiceMock)
+
+	e := echo.New()
+	e.Validator = config.NewRequestValidator()
+	request := httptest.NewRequest(http.MethodPost, "/carts", strings.NewReader(`{"product_id":123,"quantity":2}`))
+	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+	c.SetPath("/carts/:cartId")
+	c.SetParamNames("cartId")
+	c.SetParamValues(uuid.New().String())
+
+	err := controller.AddItemToCart(c)
+	if assert.Error(t, err) {
+		err := err.(*echo.HTTPError)
+		assert.Equal(t, http.StatusBadRequest, err.Code)
+		assert.Equal(t, "Unmarshal type error: expected=uuid.UUID, got=number, field=product_id, offset=17", err.Message)
+	}
+	assert.Equal(t, 0, cartServiceMock.callCount)
+}
+
+func Test_GivenAnShortUUIDForProductId_WhenAddItemToCart_ThenReturn400(t *testing.T) {
+	cartServiceMock := &cartServiceMock{}
+	controller, _ := controllers.NewCartController(cartServiceMock)
+
+	e := echo.New()
+	e.Validator = config.NewRequestValidator()
+	request := httptest.NewRequest(http.MethodPost, "/carts", strings.NewReader(`{"product_id":"123123","quantity":2}`))
+	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+	c.SetPath("/carts/:cartId")
+	c.SetParamNames("cartId")
+	c.SetParamValues(uuid.New().String())
+
+	err := controller.AddItemToCart(c)
+	if assert.Error(t, err) {
+		err := err.(*echo.HTTPError)
+		assert.Equal(t, http.StatusBadRequest, err.Code)
+		assert.Equal(t, "invalid UUID length: 6", err.Message)
+	}
+	assert.Equal(t, 0, cartServiceMock.callCount)
+}
+
+func Test_GivenAnLongUUIDForProductId_WhenAddItemToCart_ThenReturn400(t *testing.T) {
+	cartServiceMock := &cartServiceMock{}
+	controller, _ := controllers.NewCartController(cartServiceMock)
+
+	e := echo.New()
+	e.Validator = config.NewRequestValidator()
+	request := httptest.NewRequest(http.MethodPost, "/carts", strings.NewReader(`{"product_id":"123123123123123123123123123123323","quantity":2}`))
+	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+	c.SetPath("/carts/:cartId")
+	c.SetParamNames("cartId")
+	c.SetParamValues(uuid.New().String())
+
+	err := controller.AddItemToCart(c)
+	if assert.Error(t, err) {
+		err := err.(*echo.HTTPError)
+		assert.Equal(t, http.StatusBadRequest, err.Code)
+		assert.Equal(t, "invalid UUID length: 33", err.Message)
+	}
+	assert.Equal(t, 0, cartServiceMock.callCount)
+}
+
+func Test_GivenANilQuantity_WhenAddItemToCart_ThenReturn400(t *testing.T) {
+	cartServiceMock := &cartServiceMock{}
+	controller, _ := controllers.NewCartController(cartServiceMock)
+
+	e := echo.New()
+	e.Validator = config.NewRequestValidator()
+	request := httptest.NewRequest(http.MethodPost, "/carts", strings.NewReader(fmt.Sprintf(`{"product_id":"%s"}`, uuid.New().String())))
+	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+	c.SetPath("/carts/:cartId")
+	c.SetParamNames("cartId")
+	c.SetParamValues(uuid.New().String())
+
+	err := controller.AddItemToCart(c)
+	if assert.Error(t, err) {
+		err := err.(*echo.HTTPError)
+		assert.Equal(t, http.StatusBadRequest, err.Code)
+		assert.Equal(t, &config.ValidationErrorsResponse{
+			Message: "there were validation errors",
+			Errors: []config.FieldError{
+				{
+					Field: "Quantity",
+					Error: "Quantity is a required field",
+				},
+			},
+		}, err.Message)
+	}
+	assert.Equal(t, 0, cartServiceMock.callCount)
+}
+
+func Test_GivenAZeroQuantity_WhenAddItemToCart_ThenReturn400(t *testing.T) {
+	cartServiceMock := &cartServiceMock{}
+	controller, _ := controllers.NewCartController(cartServiceMock)
+
+	e := echo.New()
+	e.Validator = config.NewRequestValidator()
+	request := httptest.NewRequest(http.MethodPost, "/carts", strings.NewReader(fmt.Sprintf(`{"product_id":"%s","quantity":0}`, uuid.New().String())))
+	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+	c.SetPath("/carts/:cartId")
+	c.SetParamNames("cartId")
+	c.SetParamValues(uuid.New().String())
+
+	err := controller.AddItemToCart(c)
+	if assert.Error(t, err) {
+		err := err.(*echo.HTTPError)
+		assert.Equal(t, http.StatusBadRequest, err.Code)
+		assert.Equal(t, &config.ValidationErrorsResponse{
+			Message: "there were validation errors",
+			Errors: []config.FieldError{
+				{
+					Field: "Quantity",
+					Error: "Quantity is a required field",
+				},
+			},
+		}, err.Message)
+	}
+	assert.Equal(t, 0, cartServiceMock.callCount)
+}
+
+func Test_GivenANegativeQuantity_WhenAddItemToCart_ThenReturn400(t *testing.T) {
+	cartServiceMock := &cartServiceMock{}
+	controller, _ := controllers.NewCartController(cartServiceMock)
+
+	e := echo.New()
+	e.Validator = config.NewRequestValidator()
+	request := httptest.NewRequest(http.MethodPost, "/carts", strings.NewReader(fmt.Sprintf(`{"product_id":"%s","quantity":-1}`, uuid.New().String())))
+	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+	c.SetPath("/carts/:cartId")
+	c.SetParamNames("cartId")
+	c.SetParamValues(uuid.New().String())
+
+	err := controller.AddItemToCart(c)
+	if assert.Error(t, err) {
+		err := err.(*echo.HTTPError)
+		assert.Equal(t, http.StatusBadRequest, err.Code)
+		assert.Equal(t, &config.ValidationErrorsResponse{
+			Message: "there were validation errors",
+			Errors: []config.FieldError{
+				{
+					Field: "Quantity",
+					Error: "Quantity must be greater than 0",
+				},
+			},
+		}, err.Message)
+	}
+	assert.Equal(t, 0, cartServiceMock.callCount)
 }
 
 type cartServiceMock struct {
