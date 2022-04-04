@@ -19,9 +19,9 @@ type CartDto struct {
 }
 
 type ItemDto struct {
-	ProductId uuid.UUID
-	UnitPrice PriceDto
-	Quantity  int
+	ProductId uuid.UUID `json:"product_id"`
+	UnitPrice PriceDto  `json:"unit_price"`
+	Quantity  int       `json:"quantity"`
 }
 
 type CustomerDto struct {

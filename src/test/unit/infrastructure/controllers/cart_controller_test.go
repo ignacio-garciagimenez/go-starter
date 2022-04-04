@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/bitlogic/go-startup/src/application"
+	"github.com/bitlogic/go-startup/src/domain"
 	"github.com/bitlogic/go-startup/src/infrastructure/config"
 	"github.com/bitlogic/go-startup/src/infrastructure/controllers"
 	"github.com/google/uuid"
@@ -196,12 +198,130 @@ func Test_GivenACreateCartRequestWithMalformedUUID_WhenCreateNewCart_ThenReturn4
 	assert.Equal(t, 0, cartServiceMock.callCount)
 }
 
+func Test_GivenAValidAddItemToCartRequestAndAnExistingEmptyCart_WhenAddItemToCart_ThenReturn200AndCartDtoWithNewItem(t *testing.T) {
+	cartId := uuid.New()
+	customerId := uuid.New()
+	productId := uuid.New()
+	cartServiceMock := &cartServiceMock{
+		addItemToCart: func(command application.AddItemToCartCommand) (application.CartDto, error) {
+			if command.CartId == cartId {
+				return application.CartDto{
+					Id:         cartId,
+					CustomerId: customerId,
+					Items: []application.ItemDto{
+						{
+							ProductId: command.ProductId,
+							UnitPrice: 10.10,
+							Quantity:  command.Quantity,
+						},
+					},
+				}, nil
+			}
+
+			return application.CartDto{}, errors.New("cart doesnt exist")
+		},
+	}
+	controller, _ := controllers.NewCartController(cartServiceMock)
+
+	e := echo.New()
+	e.Validator = config.NewRequestValidator()
+	request := httptest.NewRequest(http.MethodPost, "/carts", strings.NewReader(
+		fmt.Sprintf(`{"cart_id":"%s","product_id":"%s","quantity":2}`, cartId.String(), productId.String())))
+	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+
+	if assert.NoError(t, controller.AddItemToCart(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.Equal(t,
+			fmt.Sprintf("{\"id\":\"%s\",\"customer_id\":\"%s\",\"items\":[{\"product_id\":\"%s\",\"unit_price\":10.10,\"quantity\":2}]}\n",
+				cartId.String(), customerId.String(), productId.String()),
+			rec.Body.String())
+	}
+	assert.Equal(t, 1, cartServiceMock.callCount)
+}
+
+func Test_GivenANonExistantCart_WhenAddItemToCart_ThenReturn404(t *testing.T) {
+	cartId := uuid.New()
+	customerId := uuid.New()
+	productId := uuid.New()
+	cartServiceMock := &cartServiceMock{
+		addItemToCart: func(command application.AddItemToCartCommand) (application.CartDto, error) {
+			if command.CartId == cartId {
+				return application.CartDto{
+					Id:         cartId,
+					CustomerId: customerId,
+					Items: []application.ItemDto{
+						{
+							ProductId: command.ProductId,
+							UnitPrice: 10.10,
+							Quantity:  command.Quantity,
+						},
+					},
+				}, nil
+			}
+
+			return application.CartDto{}, application.NewNotFoundError(reflect.TypeOf(domain.Cart{}).String(), cartId.String())
+		},
+	}
+	controller, _ := controllers.NewCartController(cartServiceMock)
+
+	e := echo.New()
+	e.Validator = config.NewRequestValidator()
+	request := httptest.NewRequest(http.MethodPost, "/carts", strings.NewReader(
+		fmt.Sprintf(`{"cart_id":"%s","product_id":"%s","quantity":2}`, uuid.New().String(), productId.String())))
+	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+
+	err := controller.AddItemToCart(c)
+	if assert.Error(t, err) {
+		err := err.(*echo.HTTPError)
+		assert.Equal(t, http.StatusNotFound, err.Code)
+		assert.Equal(t, fmt.Sprintf("domain.Cart with id %s not found", cartId.String()), err.Message)
+	}
+	assert.Equal(t, 1, cartServiceMock.callCount)
+}
+
+func Test_GivenACartServiceFailsToAddItemToCart_WhenAddItemToCart_ThenReturn500(t *testing.T) {
+	cartId := uuid.New()
+	productId := uuid.New()
+	cartServiceMock := &cartServiceMock{
+		addItemToCart: func(command application.AddItemToCartCommand) (application.CartDto, error) {
+			return application.CartDto{}, errors.New("failed to add item to cart")
+		},
+	}
+	controller, _ := controllers.NewCartController(cartServiceMock)
+
+	e := echo.New()
+	e.Validator = config.NewRequestValidator()
+	request := httptest.NewRequest(http.MethodPost, "/carts", strings.NewReader(
+		fmt.Sprintf(`{"cart_id":"%s","product_id":"%s","quantity":2}`, cartId.String(), productId.String())))
+	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+
+	err := controller.AddItemToCart(c)
+	if assert.Error(t, err) {
+		err := err.(*echo.HTTPError)
+		assert.Equal(t, http.StatusInternalServerError, err.Code)
+		assert.Equal(t, "failed to add item to cart", err.Message)
+	}
+	assert.Equal(t, 1, cartServiceMock.callCount)
+}
+
 type cartServiceMock struct {
 	callCount     int
 	createNewCart func(application.CreateCartCommand) (application.CartDto, error)
+	addItemToCart func(application.AddItemToCartCommand) (application.CartDto, error)
 }
 
 func (c *cartServiceMock) CreateNewCart(command application.CreateCartCommand) (application.CartDto, error) {
 	c.callCount++
 	return c.createNewCart(command)
+}
+
+func (c *cartServiceMock) AddItemToCart(command application.AddItemToCartCommand) (application.CartDto, error) {
+	c.callCount++
+	return c.addItemToCart(command)
 }

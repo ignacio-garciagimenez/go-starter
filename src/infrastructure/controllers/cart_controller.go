@@ -9,6 +9,7 @@ import (
 
 type CartService interface {
 	CreateNewCart(application.CreateCartCommand) (application.CartDto, error)
+	AddItemToCart(application.AddItemToCartCommand) (application.CartDto, error)
 }
 
 type CartController struct {
@@ -41,4 +42,21 @@ func (cc *CartController) CreateNewCart(c echo.Context) error {
 	}
 
 	return c.JSON(201, cartDto)
+}
+
+func (cc *CartController) AddItemToCart(c echo.Context) error {
+	var command application.AddItemToCartCommand
+	if err := c.Bind(&command); err != nil {
+		return err
+	}
+
+	cartDto, err := cc.cartService.AddItemToCart(command)
+	if err != nil {
+		if err, ok := err.(*application.NotFoundError); ok {
+			return echo.NewHTTPError(404, err.Error())
+		}
+		return echo.NewHTTPError(500, err.Error())
+	}
+
+	return c.JSON(200, cartDto)
 }
