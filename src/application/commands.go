@@ -1,16 +1,16 @@
 package application
 
 import (
-	"github.com/bitlogic/go-startup/src/domain"
+	"github.com/google/uuid"
 )
 
 type CreateCartCommand struct {
-	CustomerId domain.CustomerId
+	CustomerId uuid.UUID `json:"customer_id" validate:"required"`
 }
 
 type AddItemToCartCommand struct {
-	CartId    domain.CartId
-	ProductId domain.ProductId
+	CartId    uuid.UUID
+	ProductId uuid.UUID
 	Quantity  int
 }
 

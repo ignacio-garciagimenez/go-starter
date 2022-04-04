@@ -58,7 +58,7 @@ func Test_GivenAValidCreateCartCommand_WhenCreateNewCart_ThenReturnACreateCartRe
 	}
 	service, _ := application.NewCartService(cartRepository, customerRepository, &productRepositoryMock{})
 	command := application.CreateCartCommand{
-		CustomerId: savedCustomer.GetID(),
+		CustomerId: uuid.UUID(savedCustomer.GetID()),
 	}
 
 	result, err := service.CreateNewCart(command)
@@ -87,7 +87,7 @@ func Test_GivenACreateCartCommandWithNonExistinantCustomerId_WhenCreateNewCart_T
 	}
 	service, _ := application.NewCartService(cartRepository, customerRepository, &productRepositoryMock{})
 	command := application.CreateCartCommand{
-		CustomerId: domain.CustomerId(uuid.New()),
+		CustomerId: uuid.New(),
 	}
 
 	result, err := service.CreateNewCart(command)
@@ -114,7 +114,7 @@ func Test_GivenCartRepositoryFailsToSaveNewlyCreatedCart_WhenCreateNewCart_ThenR
 	}
 	service, _ := application.NewCartService(cartRepository, customerRepository, &productRepositoryMock{})
 	command := application.CreateCartCommand{
-		CustomerId: savedCustomer.GetID(),
+		CustomerId: uuid.UUID(savedCustomer.GetID()),
 	}
 
 	result, err := service.CreateNewCart(command)
@@ -140,7 +140,7 @@ func Test_GivenCustomerRepositoryReturnsNilCustomerAndNilError_WhenCreateNewCart
 	}
 	service, _ := application.NewCartService(cartRepository, customerRepository, &productRepositoryMock{})
 	command := application.CreateCartCommand{
-		CustomerId: domain.CustomerId(uuid.New()),
+		CustomerId: uuid.New(),
 	}
 
 	result, err := service.CreateNewCart(command)
@@ -174,8 +174,8 @@ func Test_GivenACart_WhenAddItemToCart_ThenTheItemIsAddedToTheCart(t *testing.T)
 	}
 	service, _ := application.NewCartService(cartRepository, &customerRepositoryMock{}, productRepository)
 	command := application.AddItemToCartCommand{
-		CartId:    vaughnVernonsCart.GetID(),
-		ProductId: productVaughnVernonWantsToAdd.GetID(),
+		CartId:    uuid.UUID(vaughnVernonsCart.GetID()),
+		ProductId: uuid.UUID(productVaughnVernonWantsToAdd.GetID()),
 		Quantity:  1,
 	}
 
@@ -216,8 +216,8 @@ func Test_GivenAnInvalidQuantity_WhenAddItemToCart_ThenReturnError(t *testing.T)
 	}
 	service, _ := application.NewCartService(cartRepository, &customerRepositoryMock{}, productRepository)
 	command := application.AddItemToCartCommand{
-		CartId:    vaughnVernonsCart.GetID(),
-		ProductId: productVaughnVernonWantsToAdd.GetID(),
+		CartId:    uuid.UUID(vaughnVernonsCart.GetID()),
+		ProductId: uuid.UUID(productVaughnVernonWantsToAdd.GetID()),
 		Quantity:  0,
 	}
 
@@ -251,8 +251,8 @@ func Test_GivenANonExistantProduct_WhenAddItemToCart_ThenReturnError(t *testing.
 	}
 	service, _ := application.NewCartService(cartRepository, &customerRepositoryMock{}, productRepository)
 	command := application.AddItemToCartCommand{
-		CartId:    vaughnVernonsCart.GetID(),
-		ProductId: domain.ProductId(uuid.New()),
+		CartId:    uuid.UUID(vaughnVernonsCart.GetID()),
+		ProductId: uuid.New(),
 		Quantity:  0,
 	}
 
@@ -285,8 +285,8 @@ func Test_GivenANonExistantCart_WhenAddItemToCart_ThenReturnError(t *testing.T) 
 	}
 	service, _ := application.NewCartService(cartRepository, &customerRepositoryMock{}, productRepository)
 	command := application.AddItemToCartCommand{
-		CartId:    domain.CartId(uuid.New()),
-		ProductId: productVaughnVernonWantsToAdd.GetID(),
+		CartId:    uuid.New(),
+		ProductId: uuid.UUID(productVaughnVernonWantsToAdd.GetID()),
 		Quantity:  1,
 	}
 
@@ -321,8 +321,8 @@ func Test_GivenCartRepositoryFailsToSave_WhenAddItemToCart_ThenReturnError(t *te
 	}
 	service, _ := application.NewCartService(cartRepository, &customerRepositoryMock{}, productRepository)
 	command := application.AddItemToCartCommand{
-		CartId:    vaughnVernonsCart.GetID(),
-		ProductId: productVaughnVernonWantsToAdd.GetID(),
+		CartId:    uuid.UUID(vaughnVernonsCart.GetID()),
+		ProductId: uuid.UUID(productVaughnVernonWantsToAdd.GetID()),
 		Quantity:  1,
 	}
 

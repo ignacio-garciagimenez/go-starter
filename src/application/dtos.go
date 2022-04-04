@@ -13,9 +13,9 @@ func (p PriceDto) MarshalJSON() ([]byte, error) {
 }
 
 type CartDto struct {
-	Id         uuid.UUID
-	CustomerId uuid.UUID
-	Items      []ItemDto
+	Id         uuid.UUID `json:"id"`
+	CustomerId uuid.UUID `json:"customer_id"`
+	Items      []ItemDto `json:"items"`
 }
 
 type ItemDto struct {

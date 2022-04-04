@@ -46,7 +46,7 @@ func Test_GivenACreateCustomerRequest_WhenCreateNewCustomer_ThenReturn200AndCust
 
 	e := echo.New()
 	e.Validator = config.NewRequestValidator()
-	request := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(`{"customer_name":"Martin Fowler"}`))
+	request := httptest.NewRequest(http.MethodPost, "/customers", strings.NewReader(`{"customer_name":"Martin Fowler"}`))
 	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(request, rec)
@@ -64,7 +64,7 @@ func Test_GivenACreateCustomerRequestWithNoBody_WhenCreateNewCustomer_ThenReturn
 
 	e := echo.New()
 	e.Validator = config.NewRequestValidator()
-	request := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(``))
+	request := httptest.NewRequest(http.MethodPost, "/customers", strings.NewReader(``))
 	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(request, rec)
@@ -93,7 +93,7 @@ func Test_GivenACreateCustomerRequestWithInvalidCustomerName_WhenCreateNewCustom
 
 	e := echo.New()
 	e.Validator = config.NewRequestValidator()
-	request := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(`{"customer_name":"Martino"}`))
+	request := httptest.NewRequest(http.MethodPost, "/customers", strings.NewReader(`{"customer_name":"Martino"}`))
 	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(request, rec)
@@ -122,7 +122,7 @@ func Test_GivenACreateCustomerRequestWithInvalidCustomerNameType_WhenCreateNewCu
 
 	e := echo.New()
 	e.Validator = config.NewRequestValidator()
-	request := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(`{"customer_name":123}`))
+	request := httptest.NewRequest(http.MethodPost, "/customers", strings.NewReader(`{"customer_name":123}`))
 	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(request, rec)
@@ -147,7 +147,7 @@ func Test_GivenAValidCreateCustomerRequestButCustomerServiceFailsToCreateNewCust
 
 	e := echo.New()
 	e.Validator = config.NewRequestValidator()
-	request := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(`{"customer_name":"Martin Fowler"}`))
+	request := httptest.NewRequest(http.MethodPost, "/customers", strings.NewReader(`{"customer_name":"Martin Fowler"}`))
 	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(request, rec)

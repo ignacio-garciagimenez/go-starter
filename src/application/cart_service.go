@@ -34,7 +34,7 @@ func NewCartService(cartRepository domain.CartRepository, customerRepository dom
 }
 
 func (s *CartService) CreateNewCart(command CreateCartCommand) (CartDto, error) {
-	customer, err := s.customerRepository.FindByID(command.CustomerId)
+	customer, err := s.customerRepository.FindByID(domain.CustomerId(command.CustomerId))
 	if err != nil {
 		return CartDto{}, err
 	}
@@ -52,12 +52,12 @@ func (s *CartService) CreateNewCart(command CreateCartCommand) (CartDto, error) 
 }
 
 func (s *CartService) AddItemToCart(command AddItemToCartCommand) (CartDto, error) {
-	product, err := s.productRepository.FindByID(command.ProductId)
+	product, err := s.productRepository.FindByID(domain.ProductId(command.ProductId))
 	if err != nil {
 		return CartDto{}, err
 	}
 
-	cart, err := s.cartRepository.FindByID(command.CartId)
+	cart, err := s.cartRepository.FindByID(domain.CartId(command.CartId))
 	if err != nil {
 		return CartDto{}, err
 	}
