@@ -5,12 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/bitlogic/go-startup/src/application"
-	"github.com/bitlogic/go-startup/src/domain"
 	"github.com/bitlogic/go-startup/src/infrastructure/config"
 	"github.com/bitlogic/go-startup/src/infrastructure/controllers"
 	"github.com/google/uuid"
@@ -261,7 +259,7 @@ func Test_GivenANonExistantCart_WhenAddItemToCart_ThenReturn404(t *testing.T) {
 				}, nil
 			}
 
-			return application.CartDto{}, application.NewNotFoundError(reflect.TypeOf(domain.Cart{}).String(), cartId.String())
+			return application.CartDto{}, application.NewNotFoundError(cartId.String(), "cart")
 		},
 	}
 	controller, _ := controllers.NewCartController(cartServiceMock)
@@ -278,7 +276,7 @@ func Test_GivenANonExistantCart_WhenAddItemToCart_ThenReturn404(t *testing.T) {
 	if assert.Error(t, err) {
 		err := err.(*echo.HTTPError)
 		assert.Equal(t, http.StatusNotFound, err.Code)
-		assert.Equal(t, fmt.Sprintf("domain.Cart with id %s not found", cartId.String()), err.Message)
+		assert.Equal(t, fmt.Sprintf("cart with id %s not found", cartId.String()), err.Message)
 	}
 	assert.Equal(t, 1, cartServiceMock.callCount)
 }

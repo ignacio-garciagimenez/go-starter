@@ -54,12 +54,12 @@ func (s *CartService) CreateNewCart(command CreateCartCommand) (CartDto, error) 
 func (s *CartService) AddItemToCart(command AddItemToCartCommand) (CartDto, error) {
 	product, err := s.productRepository.FindByID(domain.ProductId(command.ProductId))
 	if err != nil {
-		return CartDto{}, err
+		return CartDto{}, NewNotFoundError(command.ProductId.String(), "product")
 	}
 
 	cart, err := s.cartRepository.FindByID(domain.CartId(command.CartId))
 	if err != nil {
-		return CartDto{}, err
+		return CartDto{}, NewNotFoundError(command.CartId.String(), "cart")
 	}
 
 	if _, err = cart.AddItem(product, command.Quantity); err != nil {

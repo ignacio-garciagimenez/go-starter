@@ -8,7 +8,7 @@ type NotFoundError struct {
 }
 
 func (e NotFoundError) Error() string {
-	return fmt.Sprintf(`%s with id %s not found`, e.entityId, e.entityType)
+	return fmt.Sprintf(`%s with id %s not found`, e.entityType, e.entityId)
 }
 
 func NewNotFoundError(entityId string, entityType string) error {

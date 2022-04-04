@@ -2,6 +2,7 @@ package test
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/bitlogic/go-startup/src/application"
@@ -260,7 +261,8 @@ func Test_GivenANonExistantProduct_WhenAddItemToCart_ThenReturnError(t *testing.
 
 	assert.Empty(t, result)
 	if assert.Error(t, err) {
-		assert.Equal(t, "product not found", err.Error())
+		assert.IsType(t, &application.NotFoundError{}, err)
+		assert.Equal(t, fmt.Sprintf("product with id %s not found", command.ProductId), err.Error())
 	}
 	assert.Equal(t, 1, productRepository.callCount)
 	assert.Equal(t, 0, cartRepository.callCount)
@@ -294,7 +296,8 @@ func Test_GivenANonExistantCart_WhenAddItemToCart_ThenReturnError(t *testing.T) 
 
 	assert.Empty(t, result)
 	if assert.Error(t, err) {
-		assert.Equal(t, "cart not found", err.Error())
+		assert.IsType(t, &application.NotFoundError{}, err)
+		assert.Equal(t, fmt.Sprintf("cart with id %s not found", command.CartId.String()), err.Error())
 	}
 	assert.Equal(t, 1, productRepository.callCount)
 	assert.Equal(t, 1, cartRepository.callCount)
