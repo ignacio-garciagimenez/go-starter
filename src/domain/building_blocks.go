@@ -3,6 +3,7 @@ package domain
 type ValueObject interface {
 	EqualsTo(ValueObject) bool
 }
+
 type DomainEvent interface{}
 
 type Repository[K comparable, E Entity[K]] interface {

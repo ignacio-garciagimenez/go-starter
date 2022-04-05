@@ -10,13 +10,21 @@ import (
 )
 
 var productController *controllers.ProductController
+var customerController *controllers.CustomerController
+var cartController *controllers.CartController
 
 func init() {
 	productRepository := repositories.NewInMemoryProductRepository()
-	service, _ := application.NewProductService(productRepository)
-	controller, _ := controllers.NewProductController(service)
+	productService, _ := application.NewProductService(productRepository)
+	productController, _ = controllers.NewProductController(productService)
 
-	productController = controller
+	customerRepository := repositories.NewInMemoryCustomerRepository()
+	customerService, _ := application.NewCustomerService(customerRepository)
+	customerController, _ = controllers.NewCustomerController(customerService)
+
+	cartRepository := repositories.NewInMemoryCartRepository()
+	cartService, _ := application.NewCartService(cartRepository, customerRepository, productRepository)
+	cartController, _ = controllers.NewCartController(cartService)
 }
 
 func MapEndpoints(e *echo.Echo) {
@@ -27,4 +35,7 @@ func MapEndpoints(e *echo.Echo) {
 	})
 
 	e.POST("/products", productController.CreateNewProduct)
+	e.POST("/customers", customerController.CreateNewCustomer)
+	e.POST("/carts", cartController.CreateNewCart)
+	e.POST("/carts/:cartId", cartController.AddItemToCart)
 }
