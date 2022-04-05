@@ -3,6 +3,7 @@ package domain
 import (
 	"errors"
 	"reflect"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -16,7 +17,8 @@ type Product struct {
 }
 
 func NewProduct(name string, price float64) (*Product, error) {
-	if len(name) < 10 || price <= 0.00 {
+	trimmedName := strings.TrimSpace(name)
+	if len(trimmedName) < 10 || price <= 0.00 {
 		return nil, errors.New("invalid arguments")
 	}
 
@@ -24,7 +26,7 @@ func NewProduct(name string, price float64) (*Product, error) {
 		baseEntity: &baseEntity[ProductId]{
 			id: ProductId(uuid.New()),
 		},
-		name:      name,
+		name:      trimmedName,
 		unitPrice: price,
 	}
 

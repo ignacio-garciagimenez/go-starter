@@ -49,41 +49,55 @@ func Test_GivenAnInvalidNewProductRequest_WhenPOSTNewProduct_ThenReturn400ErrorR
 		testName             string
 		requestBody          string
 		expectedResponseBody string
+		expectedResponseCode int
 	}{
 		{
 			testName:             "product name too short",
 			requestBody:          `{"product_name":"PepsiPeps","unit_price":1.10}`,
 			expectedResponseBody: `{"message":"there were validation errors","validation_errors":[{"field":"ProductName","error":"ProductName must be at least 10 characters in length"}]}`,
+			expectedResponseCode: http.StatusBadRequest,
+		},
+		{
+			testName:             "product name filled with whitespaces",
+			requestBody:          `{"product_name":"PepsiPeps          ","unit_price":1.10}`,
+			expectedResponseBody: `{"message":"invalid arguments"}`,
+			expectedResponseCode: http.StatusInternalServerError,
 		},
 		{
 			testName:             "product name is nil",
 			requestBody:          `{"unit_price":1.10}`,
 			expectedResponseBody: `{"message":"there were validation errors","validation_errors":[{"field":"ProductName","error":"ProductName is a required field"}]}`,
+			expectedResponseCode: http.StatusBadRequest,
 		},
 		{
 			testName:             "product name is of invalid type",
 			requestBody:          `{"product_name":123,"unit_price":1.10}`,
 			expectedResponseBody: `{"message":"Unmarshal type error: expected=string, got=number, field=product_name, offset=19"}`,
+			expectedResponseCode: http.StatusBadRequest,
 		},
 		{
 			testName:             "unit price is nil",
 			requestBody:          `{"product_name":"Pepsi Light 2.5Lt"}`,
 			expectedResponseBody: `{"message":"there were validation errors","validation_errors":[{"field":"UnitPrice","error":"UnitPrice is a required field"}]}`,
+			expectedResponseCode: http.StatusBadRequest,
 		},
 		{
 			testName:             "unit price is negative",
 			requestBody:          `{"product_name":"Pepsi Light 2.5Lt","unit_price":-1.10}`,
 			expectedResponseBody: `{"message":"there were validation errors","validation_errors":[{"field":"UnitPrice","error":"UnitPrice must be greater than 0"}]}`,
+			expectedResponseCode: http.StatusBadRequest,
 		},
 		{
 			testName:             "unit price is of invalid type",
 			requestBody:          `{"product_name":"Pepsi Light 2.5Lt","unit_price":"-1.10"}`,
 			expectedResponseBody: `{"message":"Unmarshal type error: expected=float64, got=string, field=unit_price, offset=56"}`,
+			expectedResponseCode: http.StatusBadRequest,
 		},
 		{
 			testName:             "multiple validation errors",
 			requestBody:          `{}`,
 			expectedResponseBody: `{"message":"there were validation errors","validation_errors":[{"field":"ProductName","error":"ProductName is a required field"},{"field":"UnitPrice","error":"UnitPrice is a required field"}]}`,
+			expectedResponseCode: http.StatusBadRequest,
 		},
 	}
 
@@ -102,7 +116,7 @@ func Test_GivenAnInvalidNewProductRequest_WhenPOSTNewProduct_ThenReturn400ErrorR
 			e.Validator = config.NewRequestValidator()
 			e.ServeHTTP(rec, request)
 
-			assert.Equal(t, http.StatusBadRequest, rec.Code)
+			assert.Equal(t, tc.expectedResponseCode, rec.Code)
 			assert.Equal(t, tc.expectedResponseBody, strings.Trim(rec.Body.String(), "\n"))
 		})
 

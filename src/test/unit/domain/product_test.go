@@ -23,6 +23,14 @@ func Test_GivenANameWith9Characters_WhenNewProduct_ThenReturnError(t *testing.T)
 	assert.Equal(t, "invalid arguments", err.Error())
 }
 
+func Test_GivenANameWithWhitespacesButTrimmedIs9Charactes_WhenNewProduct_ThenReturnError(t *testing.T) {
+	product, err := domain.NewProduct("     123456789        ", 10.00)
+
+	assert.Nil(t, product)
+	assert.Error(t, err)
+	assert.Equal(t, "invalid arguments", err.Error())
+}
+
 func Test_GivenAnInvalidPrice_WhenNewProduct_ThenReturnError(t *testing.T) {
 	product, err := domain.NewProduct("Arroz yamani", 0.00)
 
