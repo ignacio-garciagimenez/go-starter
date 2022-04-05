@@ -88,6 +88,32 @@ func Test_GivenAValidCreateNewCartRequestButCartServiceFailsToCreateCart_WhenCre
 
 }
 
+func Test_GivenAValidCreateNewCartRequestButCustomerDoesExist_WhenCreateNewCart_ThenReturn500(t *testing.T) {
+	customerId := uuid.New()
+	cartServiceMock := &cartServiceMock{
+		createNewCart: func(_ application.CreateCartCommand) (application.CartDto, error) {
+			return application.CartDto{}, application.NewNotFoundError(customerId.String(), "customer")
+		},
+	}
+	controller, _ := controllers.NewCartController(cartServiceMock)
+
+	e := echo.New()
+	e.Validator = config.NewRequestValidator()
+	request := httptest.NewRequest(http.MethodPost, "/carts", strings.NewReader(fmt.Sprintf(`{"customer_id":"%s"}`, customerId.String())))
+	request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(request, rec)
+
+	err := controller.CreateNewCart(c)
+	if assert.Error(t, err) {
+		err := err.(*echo.HTTPError)
+		assert.Equal(t, http.StatusNotFound, err.Code)
+		assert.Equal(t, fmt.Sprintf("customer with id %s not found", customerId.String()), err.Message)
+	}
+	assert.Equal(t, 1, cartServiceMock.callCount)
+
+}
+
 func Test_GivenACreateCartRequestWithWrongCustomerIdType_WhenCreateNewCart_ThenReturn400(t *testing.T) {
 	cartServiceMock := &cartServiceMock{}
 	controller, _ := controllers.NewCartController(cartServiceMock)

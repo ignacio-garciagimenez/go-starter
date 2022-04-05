@@ -86,16 +86,18 @@ func Test_GivenACreateCartCommandWithNonExistinantCustomerId_WhenCreateNewCart_T
 			return nil, errors.New("entity not found")
 		},
 	}
+	customerId := uuid.New()
 	service, _ := application.NewCartService(cartRepository, customerRepository, &productRepositoryMock{})
 	command := application.CreateCartCommand{
-		CustomerId: uuid.New(),
+		CustomerId: customerId,
 	}
 
 	result, err := service.CreateNewCart(command)
 
 	assert.Empty(t, result)
 	if assert.Error(t, err) {
-		assert.Equal(t, "entity not found", err.Error())
+		assert.IsType(t, &application.NotFoundError{}, err)
+		assert.Equal(t, fmt.Sprintf("customer with id %s not found", customerId.String()), err.Error())
 	}
 	assert.Equal(t, 1, customerRepository.callCount)
 	assert.Equal(t, 0, cartRepository.callCount)

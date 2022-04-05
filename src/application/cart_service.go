@@ -36,7 +36,7 @@ func NewCartService(cartRepository domain.CartRepository, customerRepository dom
 func (s *CartService) CreateNewCart(command CreateCartCommand) (CartDto, error) {
 	customer, err := s.customerRepository.FindByID(domain.CustomerId(command.CustomerId))
 	if err != nil {
-		return CartDto{}, err
+		return CartDto{}, NewNotFoundError(command.CustomerId.String(), "customer")
 	}
 
 	cart, err := domain.NewCart(customer)

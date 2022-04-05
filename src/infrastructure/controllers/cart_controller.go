@@ -39,6 +39,9 @@ func (cc *CartController) CreateNewCart(c echo.Context) error {
 
 	cartDto, err := cc.cartService.CreateNewCart(command)
 	if err != nil {
+		if err, ok := err.(*application.NotFoundError); ok {
+			return echo.NewHTTPError(404, err.Error())
+		}
 		return echo.NewHTTPError(500, err.Error())
 	}
 
